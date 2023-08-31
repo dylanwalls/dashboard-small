@@ -7,6 +7,9 @@
 <body>
     <h1>Hello, World!</h1>
     <p>This is a basic static web app.</p>
+    <div id="functionData">
+        <!-- Data from the Azure Function will be displayed here -->
+    </div>
 
     <!-- JavaScript functions -->
     <script>
@@ -19,6 +22,29 @@
         showMessage();
     </script>
 
-    <!-- You can include additional scripts here if needed -->
+    <!-- Add this script tag at the end of your HTML body -->
+<script>
+    // Function to fetch data from the Azure Function and update the HTML
+    async function fetchDataFromFunction() {
+      try {
+        const response = await fetch('http://localhost:7071/api/AddTitleText'); // Replace with your Azure Function URL
+        if (!response.ok) {
+          throw new Error('Error fetching data');
+        }
+  
+        const data = await response.json();
+  
+        // Update the content of the div with the data from the Azure Function
+        const functionDataDiv = document.getElementById('functionData');
+        functionDataDiv.innerHTML = `<p>Data from Azure Function: ${data.join(', ')}</p>`;
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+  
+    // Call the function to fetch and display data when the page loads
+    window.addEventListener('load', fetchDataFromFunction);
+  </script>
+  
 </body>
 </html>
