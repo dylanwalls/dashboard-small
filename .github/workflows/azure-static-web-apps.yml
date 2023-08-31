@@ -28,4 +28,4 @@ jobs:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         action: "upload"
         app_location: "/" # Root directory of your repository
-        output_location: "/" # Leave this empty to deploy your entire repository
+        output_location: "/public" # Leave this empty to deploy your entire repository
