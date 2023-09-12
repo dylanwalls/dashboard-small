@@ -1,50 +1,351 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
     <title>My Static Web App</title>
-    <!-- You can link to external CSS files here if needed -->
 </head>
 <body>
     <h1>Hello, World!</h1>
     <p>This is a basic static web app.</p>
+
+    <!-- Buttons to fetch and display data from different tables -->
+    <button id="tableProperties">Properties</button>
+    <button id="tableRentalUnits">Rental Units</button>
+    <button id="tableTransactions">Transactions</button>
+    <button id="tableInvoices">Invoices</button>
+    <button id="tableInvoicePayments">Invoice Payments</button>
+    <button id="tableDeposits">Deposits</button>
+    <button id="tableDepositInterest">Deposit Interest</button>
+    <button id="tableInterestRates">Interest Rates</button>
+    <button id="tableDeductions">Deductions</button>
+    <button id="tableCitiq">Citiq</button>
+    <button id="tableHomeownerPayouts">Homeowner Payouts</button>
+    <button id="rentRoll">Rent Roll</button>
+    <!-- Add buttons for other tables as needed -->
+
+    <!-- Filter and search inputs -->
+    <!-- Filter by items per page -->
+    <label for="itemsPerPage">Items per page:</label>
+    <select id="itemsPerPage">
+        <option value="10">10</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+        <option value="300">300</option>
+    </select>
+
+    <!-- Container to display table data -->
     <div id="functionData">
-        <!-- Data from the Azure Function will be displayed here -->
+        <!-- Data from the selected table will be displayed here -->
     </div>
 
     <!-- JavaScript functions -->
     <script>
-        // Define JavaScript functions here
-        function showMessage() {
-            alert('Hello, this is a JavaScript function!');
-        }
+        console.log('Script is running');
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('The page has loaded');
+            let currentTableData = []; // Define currentTableData in the outer scope
 
-        // You can call the function directly or attach it to an HTML element's event
-        showMessage();
+            // Reference to the filter input element
+            const filterInput = document.getElementById('tableFilter');
+            // Reference to the search input element
+            const searchInput = document.getElementById('tableSearch');
+            // Reference to the "Items per page" dropdown
+            const itemsPerPageSelect = document.getElementById('itemsPerPage');
+            itemsPerPageSelect.value = 300;
+            let selectedTable = 'Properties'; // Store the selected table name
+
+            // Function to fetch data from a specific table
+            async function fetchDataFromTable(tableName) {
+                try {
+                    console.log(`Fetching data for table: ${tableName}`);
+                    const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/AddTitleText?table=${tableName}`); // Replace with the correct API endpoint
+                    if (!response.ok) {
+                        throw new Error('Error fetching data');
+                    }
+
+                    const data = await response.json();
+                    console.log(`Data fetched for table: ${tableName}`);
+                    return data;
+                } catch (error) {
+                    console.error(`Error fetching data for ${tableName}:`, error);
+                    return [];
+                }
+            }
+
+            // Function to render an HTML table
+            function renderTable(tableName, tableData) {
+                console.log(`Rendering table for: ${tableName}`);
+                const tableDiv = document.createElement('div');
+                tableDiv.innerHTML = `<h2>${tableName}</h2>`;
+
+                if (tableData.length === 0) {
+                    tableDiv.innerHTML += '<p>No data available.</p>';
+                    return tableDiv;
+                }
+
+                const table = document.createElement('table');
+                // Add a class to the table element
+                table.classList.add('table'); // Replace 'custom-table' with your desired class name
+                const headerRow = table.insertRow();
+                for (const key in tableData[0]) {
+                    const headerCell = headerRow.insertCell();
+                    headerCell.innerText = key;
+
+                    // Attach event listener for sorting (click on column headers)
+                    headerCell.addEventListener('click', () => {
+                        // Implement sorting logic here for the clicked column
+                        // You can sort the tableData array in-place
+                        // After sorting, call populateTable to refresh the table with sorted data
+                    });
+                }
+
+                tableData.forEach((rowData) => {
+                    const row = table.insertRow();
+                    for (const key in rowData) {
+                        const cell = row.insertCell();
+                        cell.innerText = rowData[key];
+                    }
+                });
+
+                tableDiv.appendChild(table);
+                return tableDiv;
+            }
+
+            // Function to add filter and search functionality to the dynamically generated table
+            function enhanceTableWithFeatures(tableName, tableData) {
+                // Reference to the filter input element
+                const filterInput = document.getElementById('tableFilter');
+                // Reference to the search input element
+                const searchInput = document.getElementById('tableSearch');
+
+                // Function to populate the table with data
+                function populateTable(data) {
+                    console.log(`Populating table with data for: ${tableName}`);
+                    const tableDiv = document.createElement('div');
+                    tableDiv.innerHTML = `<h2>${tableName}</h2>`;
+                    if (filterInput) {
+                        tableDiv.appendChild(filterInput); // Add filter input to the table div
+                    }
+                    if (searchInput) {
+                        tableDiv.appendChild(searchInput); // Add search input to the table div
+                    }
+                    const table = document.createElement('table');
+                    table.classList.add('table'); // Add a class to the table element
+
+                    // Add table headers
+                    const headerRow = table.insertRow();
+                    for (const key in data[0]) {
+                        const headerCell = headerRow.insertCell();
+                        headerCell.innerText = key;
+
+                        // Attach event listener for sorting (click on column headers)
+                        headerCell.addEventListener('click', () => {
+                            // Implement sorting logic here for the clicked column
+                            // You can sort the tableData array in-place
+                            // After sorting, call populateTable to refresh the table with sorted data
+                        });
+                    }
+
+                    // Clear table content
+                    while (table.rows.length > 1) {
+                        table.deleteRow(1);
+                    }
+
+                    // Add table rows
+                    data.forEach((rowData) => {
+                        const row = table.insertRow();
+                        for (const key in rowData) {
+                            const cell = row.insertCell();
+                            cell.innerText = rowData[key];
+                        }
+                    });
+
+                    tableDiv.appendChild(table);
+
+                    return tableDiv;
+                }
+
+                return populateTable(tableData);
+            }
+
+            // Function to fetch and display data from the selected table
+            async function fetchAndEnhanceTable(tableName) {
+                try {
+                    console.log(`Fetching and enhancing table for: ${tableName}`);
+                    const data = await fetchDataFromTable(tableName);
+                    const functionDataDiv = document.getElementById('functionData');
+                    // Clear the existing content
+                    functionDataDiv.innerHTML = '';
+                    if (data.length === 0) {
+                        functionDataDiv.innerHTML = `<h2>${tableName}</h2><p>No data available.</p>`;
+                    } else {
+                        // Set currentTableData
+                        currentTableData = data;
+
+                        // Enhance the table with features
+                        console.log(`Enhancing table with features for: ${tableName}`);
+                        const tableDiv = enhanceTableWithFeatures(tableName, data);
+                        functionDataDiv.appendChild(tableDiv);
+
+                        // Filter the table based on the default or selected items per page
+                        const selectedItemsPerPage = parseInt(itemsPerPageSelect.value, 10);
+                        // Log the selected value to check if it's correctly initialized
+                        console.log('Initial Items Per Page:', selectedItemsPerPage);
+                        filterTableByItemsPerPage(selectedItemsPerPage);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching and enhancing table for ${tableName}:`, error);
+                }
+            }
+
+            // Function to filter the table by items per page
+            function filterTableByItemsPerPage(selectedItemsPerPage) {
+                // Update the table to display the selected number of items per page
+                const startIndex = 0; // Starting index
+                const endIndex = startIndex + selectedItemsPerPage;
+
+                // Ensure that the endIndex does not exceed the tableData length
+                const limitedTableData = currentTableData.slice(startIndex, endIndex);
+
+                // Populate the table with the limited data
+                console.log(`Filtering table by Items Per Page: ${selectedItemsPerPage}`);
+                const functionDataDiv = document.getElementById('functionData');
+                functionDataDiv.innerHTML = ''; // Clear the existing content
+                const tableDiv = enhanceTableWithFeatures(selectedTable, limitedTableData);
+                functionDataDiv.appendChild(tableDiv);
+            }
+
+            // Attach event listeners to the table buttons
+            const tableButtons = [
+                'Properties',
+                'RentalUnits',
+                'Transactions',
+                'Invoices',
+                'InvoicePayments',
+                'Deposits',
+                'DepositInterest',
+                'InterestRates',
+                'Deductions',
+                'Citiq',
+                'HomeownerPayouts'
+            ];
+
+            tableButtons.forEach((tableName) => {
+                const button = document.getElementById(`table${tableName}`);
+                if (button) {
+                    button.addEventListener('click', () => {
+                        // Set the default "Items per page" value (e.g., 3)
+                        itemsPerPageSelect.value = '300';
+                        selectedTable = tableName; // Update the selected table
+                        console.log(`Button clicked for table: ${tableName}`);
+                        fetchAndEnhanceTable(tableName);
+                    });
+                }
+            });
+
+            const rentRollButton = document.getElementById('rentRoll');
+            if (rentRollButton) {
+                rentRollButton.addEventListener('click', () => {
+                    // Set the default "Items per page" value (e.g., 3)
+                    itemsPerPageSelect.value = '300';
+                    selectedTable = 'Rent Roll'; // Update the selected table
+                    console.log('Button clicked for table: Rent Roll');
+                    fetchAndEnhanceRentRollView();
+                });
+            }
+
+            // Function to fetch and display data for the new view (Invoices with invoice_type = 'rent')
+            async function fetchAndEnhanceRentRollView() {
+                try {
+                    console.log('Fetching and enhancing Rent Roll view');
+                    const data = await fetchRentRollData(); // Create a new function to fetch data for the view
+                    const functionDataDiv = document.getElementById('functionData');
+                    // Clear the existing content
+                    functionDataDiv.innerHTML = '';
+                    if (data.length === 0) {
+                        functionDataDiv.innerHTML = '<h2>Rent Roll</h2><p>No data available.</p>';
+                    } else {
+                        // Set currentTableData
+                        currentTableData = data;
+
+                        // Enhance the view with features
+                        console.log('Enhancing Rent Roll view with features');
+                        const viewDiv = enhanceRentRollView(data);
+                        functionDataDiv.appendChild(viewDiv);
+
+                        // Filter the view based on the default or selected items per page
+                        const selectedItemsPerPage = parseInt(itemsPerPageSelect.value, 10);
+                        // Log the selected value to check if it's correctly initialized
+                        console.log('Initial Items Per Page:', selectedItemsPerPage);
+                        // filterViewByItemsPerPage(selectedItemsPerPage);
+                    }
+                } catch (error) {
+                    console.error('Error fetching and enhancing Rent Roll view:', error);
+                }
+            }
+
+            // Create a new function to fetch data for the Invoices (Rent) view
+            async function fetchRentRollData() {
+                try {
+                    console.log('Fetching Rent Roll view data');
+                    const response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/RentRoll?code=N--G6_gY23Znla-XYPXaZ18UqoLlQiA1ujeJcdyrUKupAzFushCcUg=='); // Replace with the correct API endpoint
+                    if (!response.ok) {
+                        throw new Error('Error fetching data');
+                    }
+
+                    const data = await response.json();
+                    console.log('Data fetched for Rent Roll view');
+                    return data;
+                } catch (error) {
+                    console.error('Error fetching Rent Roll view data:', error);
+                    return [];
+                }
+            }
+
+            // Create a new function to render the Invoices (Rent) view
+            function enhanceRentRollView(data) {
+                console.log('Enhancing Rent Roll view');
+                const viewDiv = document.createElement('div');
+                viewDiv.innerHTML = '<h2>Rent Roll</h2>';
+
+                if (data.length === 0) {
+                    viewDiv.innerHTML += '<p>No data available.</p>';
+                    return viewDiv;
+                }
+
+                // Render the view as a list
+                const ul = document.createElement('ul');
+                ul.classList.add('invoice-list'); // Add a class to the list element
+
+                data.forEach((invoice) => {
+                    if (invoice.invoice_type === 'rent') {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <strong>Unit Ref:</strong> ${invoice.unit_ref}<br>
+                            <strong>Homeowner:</strong> ${invoice.homeowner}<br>
+                            <strong>Month:</strong> ${invoice.month}<br>
+                            <strong>Amount Due:</strong> ${invoice.amount_due}<br>
+                            <strong>Amount Paid:</strong> ${invoice.amount_paid}<br>
+                            <strong>Date Paid:</strong> ${invoice.date_paid}<br>
+                            <strong>Transaction Ref:</strong> ${invoice.transaction_ref}<br>
+                        `;
+                        ul.appendChild(li);
+                    }
+                });
+
+                viewDiv.appendChild(ul);
+                return viewDiv;
+            }
+
+            // Add event listener for "Items per page" dropdown change
+            itemsPerPageSelect.addEventListener('change', () => {
+                const selectedItemsPerPage = parseInt(itemsPerPageSelect.value, 10);
+                console.log('Items Per Page changed:', selectedItemsPerPage);
+                filterTableByItemsPerPage(selectedItemsPerPage);
+            });
+            // Load the Properties table by default when the page loads
+            fetchAndEnhanceTable(selectedTable);
+        });
     </script>
-
-    <!-- Add this script tag at the end of your HTML body -->
-<script>
-    // Function to fetch data from the Azure Function and update the HTML
-    async function fetchDataFromFunction() {
-      try {
-        const response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/AddTitleText?code=wgjq3Ke4nakaSW_BXnfCQE3oa2DewG7ecGdtfovEyzNMAzFuO9hXdg=='); // Replace with your Azure Function URL
-        if (!response.ok) {
-          throw new Error('Error fetching data');
-        }
-  
-        const data = await response.json();
-  
-        // Update the content of the div with the data from the Azure Function
-        const functionDataDiv = document.getElementById('functionData');
-        functionDataDiv.innerHTML = `<p>Data from Azure Function: ${data.join(', ')}</p>`;
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    }
-  
-    // Call the function to fetch and display data when the page loads
-    window.addEventListener('load', fetchDataFromFunction);
-  </script>
-  
 </body>
 </html>
