@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload Example</title>
+</head>
+<body>
+    <h1>Upload Excel File</h1>
+    <input type="file" id="fileInput">
+    <button id="uploadButton">Upload</button>
+    <p id="statusMessage"></p>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadButton = document.getElementById('uploadButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        uploadButton.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+
+            if (file) {
+                // Display a loading message
+                statusMessage.textContent = 'Uploading...';
+
+                // Create a FormData object and append the file
+                const formData = new FormData();
+                formData.append('excelFile', file);
+
+                try {
+                    // Send a POST request to your backend with the file data
+                    const response = await fetch('https://pythondashboardfunctions.azurewebsites.net/api/HttpTrigger?code=JCgh-VOx0T5aNlA8S06pZQGGaCdCsDmocWx9RZT-btGDAzFuKuM1DA==', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    if (response.ok) {
+                        // Display a success message
+                        statusMessage.textContent = 'Upload successful.';
+                    } else {
+                        // Display an error message
+                        statusMessage.textContent = 'Upload failed. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    // Display an error message
+                    statusMessage.textContent = 'An error occurred. Please try again later.';
+                }
+            } else {
+                // Display a message if no file is selected
+                statusMessage.textContent = 'Please select a file to upload.';
+            }
+        });
+    </script>
+</body>
+</html>
