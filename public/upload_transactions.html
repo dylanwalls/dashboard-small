@@ -1,54 +1,167 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File Upload Example</title>
+    <title>File Upload and Reconciliation</title>
 </head>
 <body>
-    <h1>Upload Excel File</h1>
-    <input type="file" id="fileInput">
-    <button id="uploadButton">Upload</button>
-    <p id="statusMessage"></p>
+    <h1>Upload Excel File for Transactions</h1>
+    <input type="file" id="transactionFileInput">
+    <button id="uploadTransactionButton">Upload Transactions</button>
+    <p id="uploadTransactionStatusMessage"></p>
+
+    <h1>Upload Excel File for Properties</h1>
+    <input type="file" id="propertyFileInput">
+    <button id="uploadPropertyButton">Upload Properties</button>
+    <p id="uploadPropertyStatusMessage"></p>
+
+    <h1>Reconcile Transactions</h1>
+    <button id="reconcileButton">Reconcile</button>
+    <p id="reconciliationStatusMessage"></p>
+
+    <h1>Generate Invoices</h1>
+    <button id="generateInvoicesButton">Generate Invoices</button>
+    <p id="generateInvoicesStatusMessage"></p>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('uploadButton');
-        const statusMessage = document.getElementById('statusMessage');
+        const transactionFileInput = document.getElementById('transactionFileInput');
+        const uploadTransactionButton = document.getElementById('uploadTransactionButton');
+        const uploadTransactionStatusMessage = document.getElementById('uploadTransactionStatusMessage');
 
-        uploadButton.addEventListener('click', async () => {
-            const file = fileInput.files[0];
+        const propertyFileInput = document.getElementById('propertyFileInput');
+        const uploadPropertyButton = document.getElementById('uploadPropertyButton');
+        const uploadPropertyStatusMessage = document.getElementById('uploadPropertyStatusMessage');
 
-            if (file) {
+        const reconcileButton = document.getElementById('reconcileButton');
+        const reconciliationStatusMessage = document.getElementById('reconciliationStatusMessage');
+
+        const generateInvoicesButton = document.getElementById('generateInvoicesButton');
+        const generateInvoicesStatusMessage = document.getElementById('generateInvoicesStatusMessage');
+
+        uploadTransactionButton.addEventListener('click', async () => {
+            const transactionFile = transactionFileInput.files[0];
+
+            if (transactionFile) {
                 // Display a loading message
-                statusMessage.textContent = 'Uploading...';
+                uploadTransactionStatusMessage.textContent = 'Uploading...';
 
-                // Create a FormData object and append the file
+                // Create a FormData object and append the transaction file
                 const formData = new FormData();
-                formData.append('excelFile', file);
+                formData.append('excelFile', transactionFile);
 
                 try {
-                    // Send a POST request to your backend with the file data
-                    const response = await fetch('https://pythondashboardfunctions.azurewebsites.net/api/HttpTrigger?code=JCgh-VOx0T5aNlA8S06pZQGGaCdCsDmocWx9RZT-btGDAzFuKuM1DA==', {
+                    // Send a POST request to your backend with the transaction file data
+                    const response = await fetch('https://python38-functions.azurewebsites.net/api/importTransactions?code=T1Bb45aNKoWlbngF3fKdiH6boPexIEQfgMdDfweuwdowAzFuWfpjTg==', {
                         method: 'POST',
                         body: formData,
+                        mode: 'cors',
                     });
 
                     if (response.ok) {
                         // Display a success message
-                        statusMessage.textContent = 'Upload successful.';
+                        uploadTransactionStatusMessage.textContent = 'Upload successful.';
                     } else {
                         // Display an error message
-                        statusMessage.textContent = 'Upload failed. Please try again.';
+                        uploadTransactionStatusMessage.textContent = 'Upload failed. Please try again.';
                     }
                 } catch (error) {
-                    console.error('Error uploading file:', error);
+                    console.error('Error uploading transaction file:', error);
                     // Display an error message
-                    statusMessage.textContent = 'An error occurred. Please try again later.';
+                    uploadTransactionStatusMessage.textContent = 'An error occurred. Please try again later.';
                 }
             } else {
-                // Display a message if no file is selected
-                statusMessage.textContent = 'Please select a file to upload.';
+                // Display a message if no transaction file is selected
+                uploadTransactionStatusMessage.textContent = 'Please select a transaction file to upload.';
             }
         });
+
+        uploadPropertyButton.addEventListener('click', async () => {
+            const propertyFile = propertyFileInput.files[0];
+
+            if (propertyFile) {
+                // Display a loading message
+                uploadPropertyStatusMessage.textContent = 'Uploading...';
+
+                // Create a FormData object and append the property file
+                const formData = new FormData();
+                formData.append('excelFile', propertyFile);
+
+                try {
+                    // Send a POST request to your backend with the property file data
+                    const response = await fetch('https://python38-functions.azurewebsites.net/api/importProperties?code=ZpSs6qZHqFPMfDZOFuL3IIzlSo01TdWShJnW4SoLjRp1AzFufC4Vbw==', {
+                        method: 'POST',
+                        body: formData,
+                        mode: 'cors',
+                    });
+
+                    if (response.ok) {
+                        // Display the message from the response
+                        const message = await response.text(); // Assuming the message is plain text
+                        uploadPropertyStatusMessage.textContent = message;
+                    } else {
+                        // Display an error message
+                        uploadPropertyStatusMessage.textContent = 'Upload failed. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('Error uploading property file:', error);
+                    // Display an error message
+                    uploadPropertyStatusMessage.textContent = 'An error occurred. Please try again later.';
+                }
+            } else {
+                // Display a message if no property file is selected
+                uploadPropertyStatusMessage.textContent = 'Please select a property file to upload.';
+            }
+        });
+
+        reconcileButton.addEventListener('click', async () => {
+            // Display a loading message
+            reconciliationStatusMessage.textContent = 'Reconciling transactions...';
+
+            try {
+                // Send a POST request to trigger the reconciliation function
+                const response = await fetch('https://python38-functions.azurewebsites.net/api/reconcileTransactions?code=F4nIHNnNeWzZbFqK0skrFc_qJ1hUoirQhaUbfBOu1HpmAzFucx6XtA==', {
+                    method: 'POST',
+                    mode: 'cors',
+                });
+
+                if (response.ok) {
+                    // Display a success message
+                    reconciliationStatusMessage.textContent = 'Reconciliation successful.';
+                } else {
+                    // Display an error message
+                    reconciliationStatusMessage.textContent = 'Reconciliation failed. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error reconciling transactions:', error);
+                // Display an error message
+                reconciliationStatusMessage.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+
+        generateInvoicesButton.addEventListener('click', async () => {
+            // Display a loading message
+            generateInvoicesStatusMessage.textContent = 'Generating invoices...';
+
+            try {
+                // Send a POST request to trigger the generate invoices function
+                const response = await fetch('https://python38-functions.azurewebsites.net/api/generateInvoices?code=TpsCxku4LFCcOFvNpk6csT96x_AxH0SPuazhPUk88FAkAzFu3Ee25w==', {
+                    method: 'POST',
+                    mode: 'cors',
+                });
+
+                if (response.ok) {
+                    // Display a success message
+                    generateInvoicesStatusMessage.textContent = 'Invoices generated successfully.';
+                } else {
+                    // Display an error message
+                    generateInvoicesStatusMessage.textContent = 'Invoice generation failed. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error generating invoices:', error);
+                // Display an error message
+                generateInvoicesStatusMessage.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+
     </script>
 </body>
 </html>
