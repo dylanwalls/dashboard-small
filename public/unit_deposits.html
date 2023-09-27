@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Bootstrap JavaScript and jQuery (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <title>Bitprop Rent Roll</title>
+</head>
+<body>
+    <nav class="navbar">
+        <!-- Title on the left -->
+        <a class="navbar-brand" href="#">Bitprop Rent Roll</a>
+    
+        <!-- Centered buttons -->
+         <!-- Rent Roll and Upload Transactions on the right -->
+
+        <!-- Upload Transactions button that links to another page -->
+        <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="index.html">Back</a></button>
+    </nav>
+    
+
+    <!-- Container to display table data -->
+    <div>
+        <h2 id="deposit-table-heading"></h2>
+    <table id="unit-deposits-table" class="table unit-deposits-table"></table>
+    </div>
+    <!-- <div id="functionData" class="container mt-4"></div> -->
+    <!-- JavaScript functions -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const unitRef = urlParams.get('unit_ref');
+
+            if (unitRef) {
+                // Call a function to fetch deposits data for the specified unit_ref
+                fetchAndDisplayDeposits(unitRef);
+            }
+        });
+
+        async function fetchAndDisplayDeposits(unitRef) {
+            try {
+                const requestData = {
+                    unitRef: unitRef
+                };
+                // Make an API request to fetch deposits based on unit_ref and is_active=1
+                const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/unitDeposits?code=YzasOh5HVO26SUQWo4vMnJ3IAP07Orur6YyleyJFVD2vAzFuEdHtGw==';
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error fetching deposits data.');
+                }
+
+                const depositsData = await response.json();
+
+                console.log('Creating deposits table');
+                const viewDiv = document.createElement('div');
+                viewDiv.innerHTML = '<h2>Rent Roll</h2>';
+
+                // Update the table heading with the unitRef
+                const tableHeading = document.getElementById('deposit-table-heading');
+                tableHeading.textContent = `Deposits: ${unitRef}`;
+
+                if (depositsData.length === 0) {
+                    viewDiv.innerHTML += '<p>No data available.</p>';
+                    return viewDiv;
+                }
+
+                // Create a table element
+                
+
+
+                const table = document.createElement('table');
+                table.classList.add('table', 'unit-deposits-table'); // Add a class to the table element
+                
+                // Display the deposits data in a table on the page
+                const depositsTable = document.getElementById('unit-deposits-table'); // Replace with the actual table element ID
+                console.log('table retrieved');
+                console.log(depositsTable);
+                depositsTable.innerHTML = ''; // Clear existing content
+
+                // Create the table headers (modify as needed)
+                const tableHeaders = ['Deposit ID', 'Amount', 'Interest', 'Total', 'Date', 'Is Active'];
+                const headerRow = depositsTable.insertRow();
+                tableHeaders.forEach((headerText) => {
+                    const headerCell = headerRow.insertCell();
+                    headerCell.textContent = headerText;
+                });
+
+                // Populate the table with deposit data
+                depositsData.forEach((deposit) => {
+                    const row = depositsTable.insertRow();
+                    row.insertCell().textContent = deposit.deposit_id;
+                    row.insertCell().textContent = deposit.amount;
+                    row.insertCell().textContent = deposit.interest;
+                    row.insertCell().textContent = deposit.total;
+                    row.insertCell().textContent = deposit.start_date;
+                    row.insertCell().textContent = deposit.is_active;
+
+                });
+
+                const totalRow = depositsTable.insertRow();
+
+                totalRow.insertCell().textContent = 'Total (active)';
+
+                const totalPaid = totalRow.insertCell();
+                totalPaid.textContent = totalPaidCalc(depositsData);
+                totalPaid.style.fontWeight = 'bold';
+
+                const totalInterest = totalRow.insertCell();
+                totalInterest.textContent = interestTotalCalc(depositsData);
+                totalInterest.style.fontWeight = 'bold';
+
+                const balance = totalRow.insertCell();
+                balance.textContent = balanceCalc(depositsData);
+                balance.style.fontWeight = 'bold';
+
+            } catch (error) {
+                console.error('Error fetching and displaying deposits:', error);
+            }
+        }
+
+        function totalPaidCalc(depositsData) {
+            let total = 0;
+            depositsData.forEach((deposit) => {
+                if (deposit.is_active === 1) {
+                    total += deposit.amount;
+                }
+            });
+            return total;
+        }
+
+        function interestTotalCalc(depositsData) {
+            let total = 0;
+            depositsData.forEach((deposit) => {
+                if (deposit.is_active === 1) {
+                    total += deposit.interest;
+                }
+            });
+            return total;
+        }
+
+        function balanceCalc(depositsData) {
+            let total = 0;
+            depositsData.forEach((deposit) => {
+                if (deposit.is_active === 1) {
+                    total += deposit.total;
+                }
+            });
+            return total;
+        }
+
+    </script>
+</body>
+</html>

@@ -18,11 +18,34 @@
     
         <!-- Centered buttons -->
          <!-- Rent Roll and Upload Transactions on the right -->
+        <!-- Rent Roll button -->
+        <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
 
         <!-- Upload Transactions button that links to another page -->
-        <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="index.html">Back</a></button>
-    </nav>
+        <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="upload_transactions.html">Upload Transactions</a></button>
+
     
+        <!-- Dropdown menu with other buttons on the far right -->
+        <div class="dropdown ml-auto">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                More
+            </button>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                <!-- Add all buttons in the dropdown menu -->
+                <button id="tableProperties" class="btn btn-primary dropdown-item">Properties</button>
+                <button id="tableRentalUnits" class="btn btn-primary dropdown-item">Rental Units</button>
+                <button id="tableTransactions" class="btn btn-primary dropdown-item">Transactions</button>
+                <button id="tableInvoices" class="btn btn-primary dropdown-item">Invoices</button>
+                <button id="tableInvoicePayments" class="btn btn-primary dropdown-item">Invoice Payments</button>
+                <button id="tableDeposits" class="btn btn-primary dropdown-item">Deposits</button>
+                <button id="tableDepositInterest" class="btn btn-primary dropdown-item">Deposit Interest</button>
+                <button id="tableInterestRates" class="btn btn-primary dropdown-item">Interest Rates</button>
+                <button id="tableDeductions" class="btn btn-primary dropdown-item">Deductions</button>
+                <button id="tableCitiq" class="btn btn-primary dropdown-item">Citiq</button>
+                <button id="tableHomeownerPayouts" class="btn btn-primary dropdown-item">Homeowner Payouts</button>
+            </div>
+        </div>
+    </nav>
 
     <h1>Upload Excel File for Transactions</h1>
     <input type="file" id="transactionFileInput">
@@ -42,9 +65,6 @@
     <button id="generateInvoicesButton">Generate Invoices</button>
     <p id="generateInvoicesStatusMessage"></p>
 
-    <!-- Container to display table data -->
-    <div id="functionData" class="container mt-4"></div>
-    <!-- JavaScript functions -->
     <script>
         const transactionFileInput = document.getElementById('transactionFileInput');
         const uploadTransactionButton = document.getElementById('uploadTransactionButton');
@@ -184,6 +204,7 @@
                 generateInvoicesStatusMessage.textContent = 'An error occurred. Please try again later.';
             }
         });
+
     </script>
 </body>
 </html>

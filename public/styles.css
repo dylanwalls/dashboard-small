@@ -1,27 +1,97 @@
-/* Style for table */
-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin-top: 20px;
-  }
-  
-  /* Style for table headers */
-  th {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: bold;
-    text-align: left;
-    padding: 8px;
-  }
-  
-  /* Style for table rows (alternating colors) */
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  /* Style for table cells */
-  td {
-    padding: 8px;
-    border: 1px solid #ddd;
-  }
-  
+/* Custom CSS */
+/* Set a smaller font size for all elements */
+body, p, h1, h2, h3, h4, h5, h6, ul, ol, li, a, input, select, textarea, button {
+  font-size: 11px; /* Adjust the font size to your preference */
+}
+
+
+body {
+  background-color: #f8f9fa; /* Set a background color */
+}
+
+.navbar {
+  background-color: #221e5a; /* Set your primary color as the background for the navbar */
+}
+
+.navbar .navbar-brand {
+  color: #fff; /* Set text color for the brand/logo */
+}
+
+.navbar .nav-item {
+  margin-right: 10px; /* Add some spacing between navbar items */
+  background-color: #221e5a;
+}
+
+.nav-link {
+  color: #fff; /* Set text color for the navbar links */
+}
+
+/* Style for the table container */
+#functionData {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for buttons */
+.btn-primary a {
+  color: #fff !important; /* Set text color for links within buttons to white */
+}
+.btn-primary {
+  background-color: transparent !important; /* Set background to transparent */
+  border-color: #221e5a !important; /* Set border color for buttons */
+  color: #fff; /* Set text color for buttons */
+}
+
+.btn-primary:hover {
+  background-color: transparent; /* Set background to transparent on hover */
+  border-color: #1c194f; /* Darken the border color on hover */
+  color: #fff; /* Set text color for buttons on hover */
+}
+
+/* Remove background color from buttons within the navbar-nav ml-auto class */
+.navbar-nav.ml-auto .btn-primary {
+  background-color: transparent; /* Set background to transparent */
+  border-color: #221e5a; /* Set border color for buttons */
+  color: #fff; /* Set text color for buttons */
+}
+
+/* Style for buttons within the navbar-nav ml-auto class on hover */
+.navbar-nav.ml-auto .btn-primary:hover {
+  background-color: transparent; /* Set background to transparent on hover */
+  border-color: #1c194f; /* Darken the border color on hover */
+  color: #fff; /* Set text color for buttons on hover */
+}
+
+
+/* Add a custom class for styling */
+.custom-btn {
+  background-color: transparent;
+  border: none;
+  color: #fff;
+}
+
+/* Add hover effect for the custom buttons */
+.custom-btn:hover {
+  background-color: transparent;
+  border: none;
+  color: #fff;
+}
+
+#uploadTransactions {
+  color: #fff !important;
+  text-decoration: none !important; /* Remove underline from the link text */
+}
+
+/* Set a smaller font size for table data cells */
+.table td {
+  font-size: 12px; /* Adjust the font size to your preference */
+}
+
+/* Apply red background to rows where Amount Paid is equal to zero in the Rent Roll table */
+.rent-roll-table td.zero-amount {
+  background-color: lightcoral; /* Adjust the background color to your preference */
+}
+
