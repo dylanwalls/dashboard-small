@@ -1,9 +1,12 @@
 const express = require('express');
 const path = require('path');
 const basicAuth = require('basic-auth');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(cors());
 
 const users = {
   'dylan.walls@bitprop.com': 'bitprop2023',

@@ -25,13 +25,43 @@
     
 
     <!-- Container to display table data -->
-    <div>
+    <div class="container mt-4">
         <h2 id="deposit-table-heading"></h2>
-    <table id="unit-deposits-table" class="table unit-deposits-table"></table>
+        <table id="unit-deposits-table" class="table unit-deposits-table"></table>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add your comment input field here -->
+                    <div class="form-group">
+                        <label for="comment">Comment:</label>
+                        <textarea class="form-control" id="comment" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="saveCommentButton">Save Comment</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- <div id="functionData" class="container mt-4"></div> -->
     <!-- JavaScript functions -->
     <script>
+        // Define commentModal as a global variable
+        window.commentModal = document.getElementById('commentModal');
+
+        let currentDepositId;
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const unitRef = urlParams.get('unit_ref');
@@ -90,7 +120,7 @@
                 depositsTable.innerHTML = ''; // Clear existing content
 
                 // Create the table headers (modify as needed)
-                const tableHeaders = ['Deposit ID', 'Amount', 'Interest', 'Total', 'Date', 'Is Active'];
+                const tableHeaders = ['Deposit ID', 'Amount', 'Interest', 'Total', 'Date', 'Is Active', 'Comments'];
                 const headerRow = depositsTable.insertRow();
                 tableHeaders.forEach((headerText) => {
                     const headerCell = headerRow.insertCell();
@@ -101,13 +131,72 @@
                 depositsData.forEach((deposit) => {
                     const row = depositsTable.insertRow();
                     row.insertCell().textContent = deposit.deposit_id;
-                    row.insertCell().textContent = deposit.amount;
-                    row.insertCell().textContent = deposit.interest;
-                    row.insertCell().textContent = deposit.total;
-                    row.insertCell().textContent = deposit.start_date;
+                    row.insertCell().textContent = parseFloat(deposit.amount).toFixed(2);
+                    row.insertCell().textContent = parseFloat(deposit.interest).toFixed(2);
+                    row.insertCell().textContent = parseFloat(deposit.total).toFixed(2);
+                    row.insertCell().textContent = deposit.start_date.split('T')[0];
                     row.insertCell().textContent = deposit.is_active;
+                    row.insertCell().textContent = deposit.comments;
 
+                    // Add the "Add Comment" button in the last cell of each row
+                    const addButtonCell = row.insertCell();
+                    const addButton = document.createElement('button');
+                    addButton.innerText = 'Add Comment';
+                    addButton.addEventListener('click', () => {
+                        document.getElementById('comment').value = '';
+                        // Set the current deposit ID or any identifier you prefer
+                        currentDepositId = deposit.deposit_id; // Replace with the actual identifier
+
+                        // Open the comment modal (same as rent roll)
+                        $(commentModal).modal('show');
+                    });
+                    addButtonCell.appendChild(addButton);
+
+                
+
+                    // Add an event listener for the "Save Comment" button in the modal
+                    document.getElementById('saveCommentButton').addEventListener('click', async () => {
+                        try {
+                            // Capture the comment text from the textarea
+                            const commentText = document.getElementById('comment').value;
+
+                            // Check if there's a current invoice ID
+                            if (!currentDepositId) {
+                                console.error('No current invoice selected.');
+                                return;
+                            }
+
+                            // Make an API request to update the comment in the database
+                            const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/updateComments?code=d2O6a2c4ZB-XRtNhCCm5bxtSye0viZVQ-bog5Q9NpvO3AzFuhig-iQ==`, {
+                                method: 'POST', // Use the appropriate HTTP method (e.g., PUT) for updating data
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ 
+                                    tableName: 'Deposits',
+                                    recordId: currentDepositId,
+                                    comment: commentText,
+                                }),
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Error updating comment.');
+                            }
+
+                            // After successfully updating the comment in the database, you may want to refresh the table to reflect the updated comment.
+                            // You can call a function to fetch and display the data for the selected table or view here.
+
+                            // Close the modal
+                            $('#commentModal').modal('hide');
+                            console.log('calling applyfilter again');
+                            fetchAndDisplayDeposits(unitRef);
+                        } catch (error) {
+                            console.error('Error saving comment:', error);
+                        }
+                    });
                 });
+
+            
 
                 const totalRow = depositsTable.insertRow();
 
@@ -134,31 +223,33 @@
             let total = 0;
             depositsData.forEach((deposit) => {
                 if (deposit.is_active === 1) {
-                    total += deposit.amount;
+                    total += parseFloat(deposit.amount);
                 }
             });
-            return total;
+            return total.toFixed(2);
         }
 
         function interestTotalCalc(depositsData) {
             let total = 0;
             depositsData.forEach((deposit) => {
                 if (deposit.is_active === 1) {
-                    total += deposit.interest;
+                    total += parseFloat(deposit.interest);
                 }
             });
-            return total;
+            return total.toFixed(2);
         }
 
         function balanceCalc(depositsData) {
             let total = 0;
             depositsData.forEach((deposit) => {
                 if (deposit.is_active === 1) {
-                    total += deposit.total;
+                    total += parseFloat(deposit.total);
                 }
             });
-            return total;
+            return total.toFixed(2);
         }
+
+
 
     </script>
 </body>
