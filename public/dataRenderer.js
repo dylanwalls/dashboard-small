@@ -1,8 +1,11 @@
 // dataRenderer.js
 
-let currentInvoiceId;
+let currentId;
+let currentDataType;
+window.currentId = null;
+window.currentDataType = null;
 
-function renderTable(data, commentModal) {
+function renderTable(data, commentModal, dataType) {
     console.log('Rendering table for:');
 
     const currentMonth = new Date().getMonth() + 1; // Get the current month (1-12)
@@ -16,7 +19,7 @@ function renderTable(data, commentModal) {
     }
 
     const tableDiv = document.createElement('div');
-    tableDiv.innerHTML = `<h2>Rent Roll</h2>`;
+    tableDiv.innerHTML = `<h2>${dataType === 'rentRoll' ? 'Rent Roll' : 'Deposits'}</h2>`;
 
     if (data.length === 0) {
         tableDiv.innerHTML += '<p>No data available.</p>';
@@ -45,45 +48,73 @@ function renderTable(data, commentModal) {
         const row = table.insertRow();
         for (const key in rowData) {
             const cell = row.insertCell();
-            if (key === 'unit_ref' && rowData[key]) {
-                // Create a link for the unit_ref column
-                const link = document.createElement('a');
-                link.href = `unit_deposits.html?unit_ref=${rowData[key]}`; // Specify the link URL
-                link.textContent = rowData[key];
-                cell.appendChild(link);
-            } else if (key === 'amount_due') {
-                cell.innerText = parseFloat(rowData[key]).toFixed(2);
-            } else if (key === 'amount_paid') {
-                const amount_due = parseFloat(rowData['amount_due']);
-                const amount_paid = parseFloat(rowData['amount_paid']);
+            if (dataType === 'rentRoll') {
+                if (key === 'unit_ref' && rowData[key]) {
+                    // Create a link for the unit_ref column
+                    const link = document.createElement('a');
+                    link.href = `unit_deposits.html?unit_ref=${rowData[key]}`; // Specify the link URL
+                    link.textContent = rowData[key];
+                    cell.appendChild(link);
+                } else if (key === 'amount_due') {
+                    cell.innerText = parseFloat(rowData[key]).toFixed(2);
+                } else if (key === 'amount_paid') {
+                    const amount_due = parseFloat(rowData['amount_due']);
+                    const amount_paid = parseFloat(rowData['amount_paid']);
 
-                cell.innerText = parseFloat(rowData[key]).toFixed(2);
+                    cell.innerText = parseFloat(rowData[key]).toFixed(2);
 
-                // Check if Amount Paid is less than Amount Due and the current month is greater than or equal to the Month value
-                if (!isNaN(amount_due) && !isNaN(amount_paid) && amount_paid < amount_due && currentMonth >= parseInt(rowData['month'], 10)) {
-                    cell.classList.add('zero-amount');
-                }
+                    // Check if Amount Paid is less than Amount Due and the current month is greater than or equal to the Month value
+                    if (!isNaN(amount_due) && !isNaN(amount_paid) && amount_paid < amount_due && currentMonth >= parseInt(rowData['month'], 10)) {
+                        cell.classList.add('zero-amount');
+                    }
 
 
-            } else if (key === 'date_paid' && rowData[key] !== null) {
-                const dateParts = rowData[key].split('T');
-                if (dateParts.length >= 1) {
-                    cell.innerText = dateParts[0];
+                } else if (key === 'date_paid' && rowData[key] !== null) {
+                    const dateParts = rowData[key].split('T');
+                    if (dateParts.length >= 1) {
+                        cell.innerText = dateParts[0];
+                    } else {
+                        cell.innerText = 'Invalid Date'
+                    }
+                } else if (key === 'month') {
+                    const monthNames = [
+                        'January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'
+                    ];
+                    const monthValue = parseInt(rowData[key], 10);
+                    if (!isNaN(monthValue) && monthValue >= 1 && monthValue <= 12) {
+                        cell.innerText = monthNames[monthValue - 1]; // Subtract 1 to get the correct index
+                    }
                 } else {
-                    cell.innerText = 'Invalid Date'
+                    cell.innerText = rowData[key];
                 }
-            } else if (key === 'month') {
-                const monthNames = [
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
-                const monthValue = parseInt(rowData[key], 10);
-                if (!isNaN(monthValue) && monthValue >= 1 && monthValue <= 12) {
-                    cell.innerText = monthNames[monthValue - 1]; // Subtract 1 to get the correct index
+            } else if (dataType === 'deposits') {
+                if (key === 'unit_ref' && rowData[key]) {
+                    // Similar logic for creating links for unit_ref column
+                    const link = document.createElement('a');
+                    link.href = `unit_deposits.html?unit_ref=${rowData[key]}`;
+                    link.textContent = rowData[key];
+                    cell.appendChild(link);
+                } else if (key === 'rent') {
+                    // Render rent, assuming it's a numeric value that should be presented with two decimal places
+                    cell.innerText = parseFloat(rowData[key]).toFixed(2);
+                } else if (key === 'deposit_paid') {
+                    // Render deposit_paid with two decimal places
+                    cell.innerText = parseFloat(rowData[key]).toFixed(2);
+                } else if (key === 'deposit_balance') {
+                    // Render deposit_balance with two decimal places
+                    // Adding logic to highlight cell if deposit balance is less than zero (indicative of an issue/overdraft)
+                    const deposit_balance = parseFloat(rowData[key]);
+                    cell.innerText = deposit_balance.toFixed(2);
+                    if (!isNaN(deposit_balance) && deposit_balance < 0) {
+                        cell.classList.add('zero-amount'); // Assumes you have CSS styling for .negative-balance for highlighting
+                    }
+                } else {
+                    // For any other key, display the data as is
+                    cell.innerText = rowData[key];
                 }
-            } else {
-                cell.innerText = rowData[key];
             }
+
         }
 
         // Add the "Add Comment" button in the last cell of each row
@@ -95,8 +126,13 @@ function renderTable(data, commentModal) {
             console.log('Button clicked');
             document.getElementById('comment').value = '';
             console.log(rowData);
-            currentInvoiceId = rowData['invoice_id']; // Replace 'invoice_id' with the actual column name containing the invoice ID
-
+            if (dataType === 'rentRoll') {
+                window.currentId = rowData['invoice_id']; // Replace 'invoice_id' with the actual column name containing the invoice ID
+                window.currentDataType = 'Invoices';
+            } else if (dataType === 'deposits') {
+                window.currentId = rowData['unit_id'];
+                window.currentDataType = 'rentalUnits';
+            }
             // Open the comment modal
             $(commentModal).modal('show');
         });
@@ -106,47 +142,27 @@ function renderTable(data, commentModal) {
     tableDiv.appendChild(table);
     dataContainer.appendChild(tableDiv);
 
+    // Create the div element for the counter dynamically if dataType is 'rentRoll'
+    if (dataType === 'rentRoll') {
+        // Counting rows where amount_paid is equal to amount_due
+        const paidCount = data.filter(row => parseFloat(row.amount_paid) === parseFloat(row.amount_due)).length;
+        const notPaidCount = data.filter(row => parseFloat(row.amount_paid) !== parseFloat(row.amount_due)).length;
+        const total = paidCount + notPaidCount;
+        const ratio = `${paidCount}/${total}`;
+        // const paidCount = 3;
+        const countDiv = document.createElement('div');
+        countDiv.id = 'paidCount';
+        countDiv.className = 'mt-2'; // You can add any required classes here
+        countDiv.innerHTML = `<small>Paid Items: <span id="paidCounter">${ratio}</span></small>`;
+        
+        // Find a place to insert the countDiv in your table or page. 
+        // In this example, I'm assuming you have a div with an id of 'header' where the title is located.
+        const headerDiv = tableDiv.querySelector('h2'); // Adjust this line to find the correct place in your DOM
+        headerDiv.insertAdjacentElement('afterend', countDiv); // This inserts countDiv right after headerDiv
+    }
 
-    // Add an event listener for the "Save Comment" button in the modal
-    document.getElementById('saveCommentButton').addEventListener('click', async () => {
-        try {
-            // Capture the comment text from the textarea
-            const commentText = document.getElementById('comment').value;
 
-            // Check if there's a current invoice ID
-            if (!currentInvoiceId) {
-                console.error('No current invoice selected.');
-                return;
-            }
-
-            // Make an API request to update the comment in the database
-            const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/updateComments?code=d2O6a2c4ZB-XRtNhCCm5bxtSye0viZVQ-bog5Q9NpvO3AzFuhig-iQ==`, {
-                method: 'POST', // Use the appropriate HTTP method (e.g., PUT) for updating data
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    tableName: 'Invoices',
-                    recordId: currentInvoiceId,
-                    comment: commentText,
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error('Error updating comment.');
-            }
-
-            // After successfully updating the comment in the database, you may want to refresh the table to reflect the updated comment.
-            // You can call a function to fetch and display the data for the selected table or view here.
-
-            // Close the modal
-            $('#commentModal').modal('hide');
-            console.log('calling applyfilter again');
-            applyFiltersAndSort();
-        } catch (error) {
-            console.error('Error saving comment:', error);
-        }
-    });
+    
 
 
 }

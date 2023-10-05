@@ -37,8 +37,34 @@ async function fetchData(params = {}) {
         throw error;
     }
 }
+
+const depositApiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/deposits?code=b0u8JjJ_K3lIzRBMgLOgcEk2wWk1LCYDru48q9mrBy0XAzFuvpHRnQ==';
+
+async function fetchDepositData(params = {}) {
+    // Similar to fetchData() but uses depositApiUrl
+    const searchParams = new URLSearchParams(params);
+    const url = `${depositApiUrl}?${searchParams.toString()}`;
+
+    try {
+        const response = await fetch(depositApiUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+}
+
 console.log('Data fetched');
 // Export fetchData for use in other scripts
-export { fetchData };
+export { fetchData, fetchDepositData };
 
   

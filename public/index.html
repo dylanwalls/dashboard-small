@@ -20,11 +20,11 @@
          <!-- Rent Roll and Upload Transactions on the right -->
         <!-- Rent Roll button -->
         <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
+        <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
 
         <!-- Upload Transactions button that links to another page -->
         <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="upload_transactions.html">Upload Transactions</a></button>
 
-    
         <!-- Dropdown menu with other buttons on the far right -->
         <div class="dropdown ml-auto">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -47,11 +47,19 @@
         </div>
     </nav>
     
+    <!-- Last Updated Label -->
+    <div class="container mt-2">
+        <div class="row">
+            <div class="col-md-12">
+                <span class="last-updated-label">Last Updated: <span id="lastUpdated">Loading...</span></span>
+            </div>
+        </div>
+    </div>
 
     <!-- Filter and search inputs -->
     <div class="container mt-3">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-4" style="display:none;">
                 <label for="itemsPerPage">Items per page:</label>
                 <select id="itemsPerPage" class="form-control">
                     <option value="">All</option>
@@ -125,7 +133,7 @@
     <!-- JavaScript functions -->
     <script type="module" src="main.js"></script>
     <script type="module">
-        import { fetchData } from './dataFetcher.js';
+        import { fetchData, fetchDepositData } from './dataFetcher.js';
         import { filterData } from './dataFilter.js';
         import { renderTable } from './dataRenderer.js';
 
@@ -133,6 +141,7 @@
         window.commentModal = document.getElementById('commentModal');
 
         window.onload = async () => {
+            window.currentTable = 'rentRoll'; // default value
             try {
                 // Find the select element for filtering by month
                 const filterMonthSelect = document.getElementById('filterMonth');
@@ -161,12 +170,124 @@
                 };
                 console.log('month ', filterCriteria.month);
                 // Sort the initial data by month, homeowner, and unit_ref
-                const sortedData = filterData(initialData, filterCriteria);
+                const sortedData = filterData(initialData, filterCriteria, 'rentRoll');
                 console.log('sorted data ', sortedData);
-                renderTable(sortedData, commentModal);
-            } catch (error) {
-                console.error('Error fetching initial data:', error);
-            }
+                renderTable(sortedData, commentModal, 'rentRoll');
+
+                // in main.js or another appropriate JS file
+                document.getElementById('rentRoll').addEventListener('click', function() {
+                    window.currentTable = 'rentRoll'; // default value
+                    console.log('calling fetchData for Rent Roll');
+                    console.log(currentTable);
+                    const filterCriteria = {
+                        itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
+                        month: new Date().getMonth() + 1,
+                        homeowner: document.getElementById('filterHomeowner').value,
+                        unitRef: document.getElementById('filterUnit').value
+                    };
+                    fetchData().then(originalData => {
+                        const filteredData = filterData(originalData, filterCriteria, 'rentRoll');
+                        renderTable(filteredData, commentModal, 'rentRoll');
+                    });
+                });
+
+                document.getElementById('depositSchedule').addEventListener('click', function() {
+                    window.currentTable = 'deposits'; // default value
+                    console.log('calling fetchDepositData');
+                    console.log(currentTable);
+                    fetchDepositData().then(originalData => {
+                        const filterCriteria = { /* your filter criteria for deposit data */ };
+                        const filteredData = filterData(originalData, filterCriteria, 'deposits');
+                        renderTable(filteredData, commentModal, 'deposits');
+                    });
+                });
+
+                // Event Listener for saveCommentButton
+                const saveCommentButton = document.getElementById('saveCommentButton');
+                if(saveCommentButton) { // ensure the element exists to avoid errors
+                    saveCommentButton.addEventListener('click', async () => {
+                        // Add an event listener for the "Save Comment" button in the modal
+                            try {
+                                // Capture the comment text from the textarea
+                                const commentText = document.getElementById('comment').value;
+
+                                // Check if there's a current invoice ID
+                                if (!currentId || !currentDataType) {
+                                    console.error('No current invoice selected.');
+                                    return;
+                                }
+
+                                // Make an API request to update the comment in the database
+                                const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/updateComments?code=d2O6a2c4ZB-XRtNhCCm5bxtSye0viZVQ-bog5Q9NpvO3AzFuhig-iQ==`, {
+                                    method: 'POST', // Use the appropriate HTTP method (e.g., PUT) for updating data
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ 
+                                        tableName: currentDataType,
+                                        recordId: currentId,
+                                        comment: commentText,
+                                    }),
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Error updating comment.');
+                                }
+
+                                // After successfully updating the comment in the database, you may want to refresh the table to reflect the updated comment.
+                                // You can call a function to fetch and display the data for the selected table or view here.
+
+                                // Close the modal
+                                $('#commentModal').modal('hide');
+                                console.log('calling applyfilter again');
+                                if (currentDataType === 'rentalUnits') {
+                                    fetchDepositData().then(originalData => {
+                                        const filterCriteria = { /* your filter criteria for deposit data */ };
+                                        const filteredData = filterData(originalData, filterCriteria, 'deposits');
+                                        renderTable(filteredData, commentModal, 'deposits');
+                                    });
+                                } else {
+                                    const filterCriteria = {
+                                        itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
+                                        month: new Date().getMonth() + 1,
+                                        homeowner: document.getElementById('filterHomeowner').value,
+                                        unitRef: document.getElementById('filterUnit').value
+                                    };
+                                    fetchData().then(originalData => {
+                                        const filteredData = filterData(originalData, filterCriteria, 'rentRoll');
+                                        renderTable(filteredData, commentModal, 'rentRoll');
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error saving comment:', error);
+                            }
+                        });
+                } else {
+                    console.error('saveCommentButton not found!');
+                }
+                    
+                } catch (error) {
+                    console.error('Error fetching initial data:', error);
+                }
+
+                try {
+                    // This is assuming you have fetchMetadata function available
+                    // and it returns a Promise that resolves with the metadata object
+                    let metadata = await fetchMetadata();
+
+                    // Update the 'lastUpdated' span with the 'last_reconciled_transactions' value from metadata
+                    if (metadata && metadata['last_reconciled_transactions']) {
+                        document.getElementById('lastUpdated').textContent = metadata['last_reconciled_transactions'];
+                    } else {
+                        // Handle the case where 'last_reconciled_transactions' is not available in metadata
+                        console.warn('last_reconciled_transactions not available in metadata');
+                        document.getElementById('lastUpdated').textContent = 'N/A';
+                    }
+                } catch (error) {
+                    // Handle errors fetching metadata
+                    console.error('Error fetching metadata:', error);
+                    document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
+                }
         };
 
         // // Add an event listener for the "Apply Filters" button
@@ -184,12 +305,37 @@
                 homeowner: document.getElementById('filterHomeowner').value,
                 unitRef: document.getElementById('filterUnit').value
             };
-            const filteredData = filterData(originalData, filterCriteria);
-            renderTable(filteredData, commentModal);
+            const filteredData = filterData(originalData, filterCriteria, window.currentTable);
+            renderTable(filteredData, commentModal, 'rentRoll');
             } catch (error) {
             console.error('Error in applyFiltersAndSort:', error);
             }
         };
+
+        async function fetchMetadata() {
+            try {
+                let response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/fetchMetadata?code=xjpjkjqlvPUq9zFlqqZumqeHdnL0fLg7P01YjDZ2Kl2AAzFuBbFEVQ==');
+                let data = await response.json();
+                console.log('Raw data: ', data);
+                let metadata = {};
+                if (Array.isArray(data)) {
+                    data
+                        data.forEach(item => {
+                            if (item.meta_key && item.meta_value) {
+                                metadata[item.meta_key] = item.meta_value;
+                            } else {
+                                console.warn('Skipped item due to missing meta_key or meta_value:', item);
+                            }
+                           
+                        });
+                } else {
+                    console.error('Unexpected data format:', data); // Log an error if data is not an array
+                }
+                return metadata;
+            } catch (error) {
+                console.error("Error fetching metadata:", error);
+            }
+        }
     </script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 // dataFilter.js
 
-function filterData(data, criteria) {
+function filterData(data, criteria, currentTable) {
     let filteredData = data;
 
     if (criteria.itemsPerPage) {
         filteredData = filterByItemsPerPage(filteredData, criteria.itemsPerPage);
     }
-    if (criteria.month) {
+    if (criteria.month && currentTable === 'rentRoll') {
         filteredData = filterByMonth(filteredData, criteria.month);
     }
     if (criteria.homeowner) {
@@ -18,7 +18,7 @@ function filterData(data, criteria) {
 
     // Sort the filtered data by month and unit_ref
     filteredData = sortData(filteredData);
-
+    console.log('Data filtered');
     return filteredData;
 }
 
@@ -61,5 +61,5 @@ function filterByUnitRef(data, unit_ref) {
     const lowercaseUnitRef = unit_ref.toLowerCase();
     return data.filter(item => item.unit_ref.toLowerCase().includes(lowercaseUnitRef));
 }
-console.log('Data filtered');
+
 export { filterData };

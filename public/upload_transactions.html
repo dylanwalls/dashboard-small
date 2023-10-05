@@ -28,24 +28,63 @@
     <input type="file" id="transactionFileInput">
     <button id="uploadTransactionButton">Upload Transactions</button>
     <p id="uploadTransactionStatusMessage"></p>
+    <div>Last Updated: <span id="lastUpdatedTransactions">Loading...</span></div>
 
     <h1>Upload Excel File for Properties</h1>
     <input type="file" id="propertyFileInput">
     <button id="uploadPropertyButton">Upload Properties</button>
     <p id="uploadPropertyStatusMessage"></p>
+    <div>Last Updated: <span id="lastUpdatedProperties">Loading...</span></div>
 
     <h1>Reconcile Transactions</h1>
     <button id="reconcileButton">Reconcile</button>
     <p id="reconciliationStatusMessage"></p>
+    <div>Last Updated: <span id="lastReconciledTransactions">Loading...</span></div>
 
     <h1>Generate Invoices</h1>
     <button id="generateInvoicesButton">Generate Invoices</button>
     <p id="generateInvoicesStatusMessage"></p>
+    <div>Last Updated: <span id="lastGeneratedInvoices">Loading...</span></div>
 
     <!-- Container to display table data -->
-    <div id="functionData" class="container mt-4"></div>
+    <!-- <div id="functionData" class="container mt-4"></div> -->
     <!-- JavaScript functions -->
     <script>
+
+        window.onload = function() {
+                    updateMetadataLabels();
+                    //... any other onload logic you might have
+                };
+
+        // Add this function to update Last Updated labels
+        function updateLastUpdatedLabel(labelId, metaKey) {
+            const timestamp = new Date().toLocaleString();
+
+            document.getElementById(labelId).textContent = timestamp;
+
+            // Prepare data to send to the server
+            const data = {
+                meta_key: metaKey,
+                meta_value: timestamp
+            };
+
+            // Send data to server
+            fetch('https://dashboard-function-app-1.azurewebsites.net/api/updateMetaData?code=nIb1Jt8EvziIXHh4d6dkl8wFqV6VheAed_OTu-xFK_-AAzFuWf2-Yg==', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch((error) => console.error('Error:', error));
+        }
+
+        // Usage:
+        // updateLastUpdatedLabel('lastUpdatedTransactions', 'last_updated_transactions');
+
+
         const transactionFileInput = document.getElementById('transactionFileInput');
         const uploadTransactionButton = document.getElementById('uploadTransactionButton');
         const uploadTransactionStatusMessage = document.getElementById('uploadTransactionStatusMessage');
@@ -82,6 +121,8 @@
                     if (response.ok) {
                         // Display a success message
                         uploadTransactionStatusMessage.textContent = 'Upload successful.';
+                        updateLastUpdatedLabel('lastUpdatedTransactions', 'last_updated_transactions');
+                        updateMetadataLabels();
                     } else {
                         // Display an error message
                         uploadTransactionStatusMessage.textContent = 'Upload failed. Please try again.';
@@ -120,6 +161,8 @@
                         // Display the message from the response
                         const message = await response.text(); // Assuming the message is plain text
                         uploadPropertyStatusMessage.textContent = message;
+                        updateLastUpdatedLabel('lastUpdatedProperties', 'last_updated_properties');
+                        updateMetadataLabels();
                     } else {
                         // Display an error message
                         uploadPropertyStatusMessage.textContent = 'Upload failed. Please try again.';
@@ -149,6 +192,8 @@
                 if (response.ok) {
                     // Display a success message
                     reconciliationStatusMessage.textContent = 'Reconciliation successful.';
+                    updateLastUpdatedLabel('lastReconciledTransactions', 'last_reconciled_transactions');
+                    updateMetadataLabels();
                 } else {
                     // Display an error message
                     reconciliationStatusMessage.textContent = 'Reconciliation failed. Please try again.';
@@ -174,6 +219,8 @@
                 if (response.ok) {
                     // Display a success message
                     generateInvoicesStatusMessage.textContent = 'Invoices generated successfully.';
+                    updateLastUpdatedLabel('lastGeneratedInvoices', 'last_generated_invoices');
+                    updateMetadataLabels();
                 } else {
                     // Display an error message
                     generateInvoicesStatusMessage.textContent = 'Invoice generation failed. Please try again.';
@@ -184,6 +231,46 @@
                 generateInvoicesStatusMessage.textContent = 'An error occurred. Please try again later.';
             }
         });
+
+        async function fetchMetadata() {
+            try {
+                let response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/fetchMetadata?code=xjpjkjqlvPUq9zFlqqZumqeHdnL0fLg7P01YjDZ2Kl2AAzFuBbFEVQ==');
+                let data = await response.json();
+                console.log('Raw data: ', data);
+                let metadata = {};
+                if (Array.isArray(data)) {
+                    data
+                        data.forEach(item => {
+                            if (item.meta_key && item.meta_value) {
+                                metadata[item.meta_key] = item.meta_value;
+                            } else {
+                                console.warn('Skipped item due to missing meta_key or meta_value:', item);
+                            }
+                           
+                        });
+                } else {
+                    console.error('Unexpected data format:', data); // Log an error if data is not an array
+                }
+                return metadata;
+            } catch (error) {
+                console.error("Error fetching metadata:", error);
+            }
+        }
+
+        async function updateMetadataLabels() {
+            let metadata = await fetchMetadata();
+            if (metadata) {
+                // Assuming your metadata returns an array or an object.
+                // Adjust according to your actual response structure.
+                document.getElementById('lastUpdatedTransactions').textContent = metadata['last_updated_transactions'] || 'N/A';
+                document.getElementById('lastUpdatedProperties').textContent = metadata['last_updated_properties'] || 'N/A';
+                document.getElementById('lastReconciledTransactions').textContent = metadata['last_reconciled_transactions'] || 'N/A';
+                document.getElementById('lastGeneratedInvoices').textContent = metadata['last_generated_invoices'] || 'N/A';
+                //... Add other metadata updates here
+            }
+        }
+
+
     </script>
 </body>
 </html>
