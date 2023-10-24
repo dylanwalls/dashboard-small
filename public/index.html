@@ -288,6 +288,16 @@
                     console.error('Error fetching metadata:', error);
                     document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
                 }
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
+
+            fetch(azureFunctionURL)
+            .then(response => response.text())
+            .then(data => {
+                console.log('Azure Function responded with:', data);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+            });
         };
 
         // // Add an event listener for the "Apply Filters" button
