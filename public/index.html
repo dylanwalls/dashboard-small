@@ -25,6 +25,9 @@
         <!-- Upload Transactions button that links to another page -->
         <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="upload_transactions.html">Upload Transactions</a></button>
 
+         <!-- Deposit calc button -->
+         <button id="depositCalc" class="btn btn-primary custom-btn" style="color: #fff;">Calculate Deposits</button>
+
         <!-- Dropdown menu with other buttons on the far right -->
         <div class="dropdown ml-auto">
             <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -288,16 +291,12 @@
                     console.error('Error fetching metadata:', error);
                     document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
                 }
-            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
+            const callFunctionButton = document.getElementById('depositCalc');
 
-            fetch(azureFunctionURL)
-            .then(response => response.text())
-            .then(data => {
-                console.log('Azure Function responded with:', data);
-            })
-            .catch(error => {
-                console.error('Error calling Azure Function:', error);
+            callFunctionButton.addEventListener('click', () => {
+                callAzureFunction();
             });
+
         };
 
         // // Add an event listener for the "Apply Filters" button
@@ -346,6 +345,26 @@
                 console.error("Error fetching metadata:", error);
             }
         }
+
+        function callAzureFunction() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
+
+            fetch(azureFunctionURL, {
+                method: 'POST', // Specify the HTTP method as POST
+                headers: {
+                    'Content-Type': 'application/json', // Set the content type if you're sending JSON data
+                },
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Azure Function responded with:', data);
+                    // You can handle the response here, such as updating the UI.
+                })
+                .catch(error => {
+                    console.error('Error calling Azure Function:', error);
+                });
+        }
+
     </script>
 </body>
 </html>
