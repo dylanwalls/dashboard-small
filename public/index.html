@@ -25,8 +25,11 @@
         <!-- Upload Transactions button that links to another page -->
         <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="upload_transactions.html">Upload Transactions</a></button>
 
-         <!-- Deposit calc button -->
-         <button id="depositCalc" class="btn btn-primary custom-btn" style="color: #fff;">Calculate Deposits</button>
+         <!-- Deposit calc button
+         <button id="depositCalc" class="btn btn-primary custom-btn" style="color: #fff;">Calculate Deposits</button> -->
+
+         <!-- Deposit schedule download button -->
+         <button id="depositDownload" class="btn btn-primary custom-btn" style="color: #fff;">Download Deposit Schedule</button>
 
         <!-- Dropdown menu with other buttons on the far right -->
         <div class="dropdown ml-auto">
@@ -291,11 +294,12 @@
                     console.error('Error fetching metadata:', error);
                     document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
                 }
-            const callFunctionButton = document.getElementById('depositCalc');
-
-            callFunctionButton.addEventListener('click', () => {
                 callAzureFunction();
-            });
+            // const callFunctionButton = document.getElementById('depositCalc');
+
+            // callFunctionButton.addEventListener('click', () => {
+            //     callAzureFunction();
+            // });
 
         };
 
@@ -364,6 +368,32 @@
                     console.error('Error calling Azure Function:', error);
                 });
         }
+
+        function callAzureFunction() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadExcel?code=OmWnz5qzTyTy1Zrp3nQSLGWHbk0tKN4BAsr0QA9wgVAlAzFunCDdNA==';
+
+            fetch(azureFunctionURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'depositSchedule.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+            });
+        }
+
 
     </script>
 </body>
