@@ -208,6 +208,11 @@
                     });
                 });
 
+                document.getElementById('depositDownload').addEventListener('click', function() {
+                    console.log('Downloading deposit schedule');
+                    depositDownloadSchedule();
+                });
+
                 // Event Listener for saveCommentButton
                 const saveCommentButton = document.getElementById('saveCommentButton');
                 if(saveCommentButton) { // ensure the element exists to avoid errors
@@ -369,7 +374,7 @@
                 });
         }
 
-        function callAzureFunction() {
+        function depositDownloadSchedule() {
             const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadExcel?code=OmWnz5qzTyTy1Zrp3nQSLGWHbk0tKN4BAsr0QA9wgVAlAzFunCDdNA==';
 
             fetch(azureFunctionURL, {
