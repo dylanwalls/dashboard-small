@@ -300,6 +300,7 @@
                     document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
                 }
                 callAzureFunction();
+                depositStatusCalc();
             // const callFunctionButton = document.getElementById('depositCalc');
 
             // callFunctionButton.addEventListener('click', () => {
@@ -359,6 +360,25 @@
             const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
 
             fetch(azureFunctionURL, {
+                method: 'POST', // Specify the HTTP method as POST
+                headers: {
+                    'Content-Type': 'application/json', // Set the content type if you're sending JSON data
+                },
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Azure Function responded with:', data);
+                    // You can handle the response here, such as updating the UI.
+                })
+                .catch(error => {
+                    console.error('Error calling Azure Function:', error);
+                });
+        }
+
+        function depositStatusCalc() {
+            const depositStatusCalcURL = 'https://python38-functions.azurewebsites.net/api/depositStatus?code=rGLnNfM0TlY5f1GYMPRzA2T17Zq4VB_nOSMv3KgH5Jt3AzFuOmnSug==';
+
+            fetch(depositStatusCalcUrl, {
                 method: 'POST', // Specify the HTTP method as POST
                 headers: {
                     'Content-Type': 'application/json', // Set the content type if you're sending JSON data
