@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Bootstrap JavaScript and jQuery (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/popper.min.js"></script> -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <title>Bitprop Rent Roll</title>
+</head>
+<body>
+    <nav class="navbar">
+        <!-- Title on the left -->
+        <a class="navbar-brand" href="#">Bitprop Rent Roll</a>
+    
+        <!-- Centered buttons -->
+         <!-- Rent Roll and Upload Transactions on the right -->
+
+        <!-- Upload Transactions button that links to another page -->
+        <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #000000;"><a href="index.html">Generate Statements</a></button>
+    </nav>
+
+    <!-- Heading placeholder -->
+    <div id="heading" class="container mt-4">
+        <!-- The heading will be dynamically inserted here -->
+    </div>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="isFinalCheckbox">
+                    <label class="form-check-label" for="isFinalCheckbox">
+                        Is Final Run
+                    </label>
+                </div>
+        
+                <!-- Numeric input for Month -->
+                <div class="form-group">
+                    <label for="monthInput">Month (1-12)</label>
+                    <input type="number" class="form-control" id="monthInput" min="1" max="12" required>
+                </div>
+        
+                <!-- Text input for Statement Date -->
+                <div class="form-group">
+                    <label for="statementDateInput">Statement Date</label>
+                    <input type="text" class="form-control" id="statementDateInput" placeholder="YYYY/MM/DD">
+                </div>
+
+                <!-- Text input for bulk comments -->
+                <div class="form-group">
+                    <label for="bulkComments">Bulk Comments (included on every statement)</label>
+                    <input type="text" class="form-control" id="bulkComments">
+                </div>
+
+                <!-- Text input for sql query -->
+                <div class="form-group">
+                    <label for="sqlInpur">SQL Input</label>
+                    <input type="text" class="form-control" id="sqlInput">
+                </div>
+
+                <button id="regenerateStatements" onclick="regenerateStatements()">Regenerate Statements</button>
+                <p id="regenerateStatementsMessage"></p>
+                <div>Last Updated: <span id="lastUpdatedTransactions">Loading...</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container to display table data -->
+    <div id="functionData" class="container mt-4"></div>
+    
+    <!-- JavaScript functions -->
+    <script>
+        window.onload = function() {
+            setHeading();
+            fetchData();
+        };
+
+        async function fetchData() {
+            const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchStatements?code=E3dC8LtBFJJRhaZU48Wv1yoFlTEApT3nIN4EyMoABmGqAzFuPoFaQQ==';
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                createTable(data);
+            } catch (e) {
+                console.error('There was a problem fetching the data.', e);
+            }
+        }
+
+        function setHeading(asOfDate) {
+            // Set the heading with the as_of date
+            const headingHtml = `<h1 class="text-center">Homeowner Statements as of now</h1>`;
+            document.getElementById('heading').innerHTML = headingHtml;
+        }
+
+        function createTable(data) {
+            // Assuming `data` is an array of objects where each object is a row in the table
+            let table = '<table class="table table-striped">';
+            table += '<thead><tr>';
+            // Add column headers to the table
+            for (let column in data[0]) {
+                table += `<th>${column}</th>`;
+            }
+            table += '</tr></thead><tbody>';
+            // Add rows to the table
+            data.forEach(row => {
+                table += '<tr>';
+                for (let column in row) {
+                    // Check if the column is 'latest_statements' and create a hyperlink
+                    if (column === 'latest_statement') {
+                        // Assuming that `row[column]` contains a valid URL
+                        table += `<td><a href="${row[column]}" target="_blank">${row[column]}</a></td>`;
+                    } else {
+                        table += `<td>${row[column]}</td>`;
+                    }
+                }
+                table += '</tr>';
+            });
+            table += '</tbody></table>';
+            // Insert the table into the 'functionData' div
+            document.getElementById('functionData').innerHTML = table;
+        }
+
+        function regenerateStatements() {
+            const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
+            const monthInput = document.getElementById('monthInput').value;
+            const month = parseInt(monthInput, 10);
+            const statementDate = document.getElementById('statementDateInput').value;
+            const bulkComments = document.getElementById('bulkComments').value;
+            const sqlInput = document.getElementById('sqlInput').value || 'SELECT * FROM Properties';
+            console.log('is final: ', isFinal);
+            // Call your Azure Function with the isFinal parameter
+            regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
+        }
+
+        async function regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput) {
+            const apiUrl = 'https://python38-functions.azurewebsites.net/api/generateStatements?code=a1UO5Zuk-rL9Gn-O4_mWcdbgZ-GabyChDgCSXOuy-1DhAzFuxWqhdA==';
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST', // Specify the method
+                    headers: {
+                        'Content-Type': 'application/json' // Set the Content-Type header
+                    },
+                    body: JSON.stringify({ 
+                        final: isFinal,
+                        month: month,
+                        statementDate: statementDate,
+                        bulkComments: bulkComments,
+                        sqlInput: sqlInput
+                    }) // Stringify the JSON body
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // Handle the response from your function
+                console.log('Statements regenerated:', await response.json());
+                // Optionally, refresh the data on the page
+                fetchData();
+            } catch (e) {
+                console.error('There was a problem regenerating the statements.', e);
+            }
+        }
+
+    </script>
+</body>
+</html>
