@@ -58,8 +58,8 @@
 
                 <!-- Text input for sql query -->
                 <div class="form-group">
-                    <label for="sqlInpur">SQL Input</label>
-                    <input type="text" class="form-control" id="sqlInput">
+                    <label for="sqlInput">SQL Input</label>
+                    <input type="number" class="form-control" id="sqlInput">
                 </div>
 
                 <button id="regenerateStatements" onclick="regenerateStatements()">Regenerate Statements</button>
@@ -120,6 +120,7 @@
                         table += `<td>${row[column]}</td>`;
                     }
                 }
+                table += `<td><button class="btn btn-primary" onclick="handleButtonClick('${row.property_id}')">Action</button></td>`;
                 table += '</tr>';
             });
             table += '</tbody></table>';
@@ -133,8 +134,9 @@
             const month = parseInt(monthInput, 10);
             const statementDate = document.getElementById('statementDateInput').value;
             const bulkComments = document.getElementById('bulkComments').value;
-            const sqlInput = document.getElementById('sqlInput').value || 'SELECT * FROM Properties';
+            const sqlInput = document.getElementById('sqlInput').value;
             console.log('is final: ', isFinal);
+            console.log('sql: ', sqlInput);
             // Call your Azure Function with the isFinal parameter
             regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
         }
@@ -165,6 +167,19 @@
             } catch (e) {
                 console.error('There was a problem regenerating the statements.', e);
             }
+        }
+
+        // Function to handle button click, pass the property_id to this function
+        function handleButtonClick(propertyId) {
+            console.log('Button clicked for property ID:', propertyId);
+            const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
+            const monthInput = document.getElementById('monthInput').value;
+            const month = parseInt(monthInput, 10);
+            const sqlInput = parseInt(propertyId, 10);
+            const statementDate = document.getElementById('statementDateInput').value;
+            const bulkComments = document.getElementById('bulkComments').value;
+            regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
+            // You can call your specific function here and pass the propertyId 
         }
 
     </script>
