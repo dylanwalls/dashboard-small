@@ -31,10 +31,15 @@ function sortData(data) {
             return a.month - b.month;
         }
 
-        // If months are the same, sort by homeowner
-        const homeownerComparison = a.homeowner.localeCompare(b.homeowner);
-        if (homeownerComparison !== 0) {
-            return homeownerComparison;
+        // // If months are the same, sort by homeowner
+        // const homeownerComparison = a.homeowner.localeCompare(b.homeowner);
+        // if (homeownerComparison !== 0) {
+        //     return homeownerComparison;
+        // }
+
+        // If months are the same, sort by chron_order
+        if (a.chron_order !== b.chron_order) {
+            return a.chron_order - b.chron_order;
         }
 
         // If homeowners are the same, sort by unit_ref
