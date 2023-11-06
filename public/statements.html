@@ -130,7 +130,7 @@
             document.getElementById('functionData').innerHTML = table;
         }
 
-        function regenerateStatements() {
+        async function regenerateStatements() {
             const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
             const monthInput = document.getElementById('monthInput').value;
             const month = parseInt(monthInput, 10);
@@ -140,15 +140,32 @@
             console.log('is final: ', isFinal);
             console.log('sql: ', sqlInput);
             // Call your Azure Function with the isFinal parameter
-            regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
+            const response = await regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
+            
+            // Check if the response status is OK (200)
+            if (response.status === 200) {
+                try {
+                    // Parse JSON response
+                    const responseData = await response.json();
+                    console.log('Statements regenerated:', responseData);
+                    // Optionally, refresh the data on the page
+                    fetchData();
+                } catch (error) {
+                    console.error('Error parsing JSON response:', error);
+                }
+            } else {
+                // Handle non-OK response status here
+                console.error('Non-OK response status:', response.status);
+            }
         }
 
         async function regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput) {
-            console.log('is final: ', isFinal)
-            console.log('month: ', month)
-            console.log('statement date: ', statementDate)
-            console.log('bulk comments: ', bulkComments)
-            console.log('sql input: ', sqlInput)
+            console.log('is final: ', isFinal);
+            console.log('month: ', month);
+            console.log('statement date: ', statementDate);
+            console.log('bulk comments: ', bulkComments);
+            console.log('sql input: ', sqlInput);
+
             const apiUrl = 'https://python38-functions.azurewebsites.net/api/generateStatements?code=a1UO5Zuk-rL9Gn-O4_mWcdbgZ-GabyChDgCSXOuy-1DhAzFuxWqhdA==';
             console.log('Sending JSON data:', JSON.stringify({ 
                 final: isFinal,
@@ -157,11 +174,12 @@
                 bulkComments: bulkComments,
                 sqlInput: sqlInput
             }));
+            
             try {
                 const response = await fetch(apiUrl, {
-                    method: 'POST', // Specify the method
+                    method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json' // Set the Content-Type header
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ 
                         final: isFinal,
@@ -169,32 +187,44 @@
                         statementDate: statementDate,
                         bulkComments: bulkComments,
                         sqlInput: sqlInput
-                    }) // Stringify the JSON body
+                    })
                 });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    console.log('Response is OK');
+                } else {
+                    console.error('Response is not OK');
                 }
-                // Handle the response from your function
-                console.log('Statements regenerated:', await response.json());
-                // Optionally, refresh the data on the page
-                fetchData();
+
+                return response; // Return the response object without reading the body
             } catch (e) {
-                console.error('There was a problem regenerating the statements.', e);
+                console.error('Error in fetch request:', e);
+                throw e;
             }
         }
+
+
 
         // Function to handle button click, pass the property_id to this function
         function handleButtonClick(propertyId) {
             console.log('Button clicked for property ID:', propertyId);
             const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
             const monthInput = document.getElementById('monthInput').value;
-            const month = parseInt(monthInput, 10);
-            const sqlInput = parseInt(propertyId, 10);
-            const statementDate = document.getElementById('statementDateInput').value;
-            const bulkComments = document.getElementById('bulkComments').value;
-            regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
-            // You can call your specific function here and pass the propertyId 
+            const statementDateInput = document.getElementById('statementDateInput').value;
+
+            // Check if both "Month" and "Statement Date" inputs have values
+            if (monthInput.trim() !== '' && statementDateInput.trim() !== '') {
+                const month = parseInt(monthInput, 10);
+                const sqlInput = parseInt(propertyId, 10);
+                const bulkComments = document.getElementById('bulkComments').value;
+                regenerateFunction(isFinal, month, statementDateInput, bulkComments, sqlInput);
+            } else {
+                alert('Please fill in both the Month and Statement Date fields.');
+            }
         }
+
 
         function sendWhatsappStatements(propertyId) {
             const functionUrl = 'https://python38-functions.azurewebsites.net/api/numbersSendHomeowners?code=XQdyh0NCXPjW7VuODt8-xwYjn4f785hGjkjsazkwx1GqAzFu-YAVvQ==';
