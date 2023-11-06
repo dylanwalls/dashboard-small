@@ -121,7 +121,8 @@
                         table += `<td>${row[column]}</td>`;
                     }
                 }
-                table += `<td><button class="btn btn-primary" onclick="handleButtonClick('${row.property_id}')">Action</button></td>`;
+                table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="handleButtonClick('${row.property_id}')">Regenerate Statements</button></td>`;
+                table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="sendWhatsappStatements('${row.property_id}')">Send Statement</button></td>`;
                 table += '</tr>';
             });
             table += '</tbody></table>';
@@ -143,7 +144,19 @@
         }
 
         async function regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput) {
+            console.log('is final: ', isFinal)
+            console.log('month: ', month)
+            console.log('statement date: ', statementDate)
+            console.log('bulk comments: ', bulkComments)
+            console.log('sql input: ', sqlInput)
             const apiUrl = 'https://python38-functions.azurewebsites.net/api/generateStatements?code=a1UO5Zuk-rL9Gn-O4_mWcdbgZ-GabyChDgCSXOuy-1DhAzFuxWqhdA==';
+            console.log('Sending JSON data:', JSON.stringify({ 
+                final: isFinal,
+                month: month,
+                statementDate: statementDate,
+                bulkComments: bulkComments,
+                sqlInput: sqlInput
+            }));
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST', // Specify the method
@@ -183,14 +196,17 @@
             // You can call your specific function here and pass the propertyId 
         }
 
-        function sendWhatsappStatements() {
+        function sendWhatsappStatements(propertyId) {
             const functionUrl = 'https://python38-functions.azurewebsites.net/api/numbersSendHomeowners?code=XQdyh0NCXPjW7VuODt8-xwYjn4f785hGjkjsazkwx1GqAzFu-YAVvQ==';
 
             fetch(functionUrl, {
                 method: 'POST', // or 'GET' if your function expects a GET request
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ 
+                    id: propertyId
+                })
             })
             .then(response => {
                 if (!response.ok) {
