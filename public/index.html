@@ -28,6 +28,10 @@
          <!-- Deposit calc button
          <button id="depositCalc" class="btn btn-primary custom-btn" style="color: #fff;">Calculate Deposits</button> -->
 
+        <!-- Rent roll download button -->
+         <button id="rentRollDownload" class="btn btn-primary custom-btn" style="color: #fff;">Rent Roll Download</button>
+
+
          <!-- Deposit schedule download button -->
          <button id="depositDownload" class="btn btn-primary custom-btn" style="color: #fff;">Download Deposit Schedule</button>
 
@@ -210,6 +214,11 @@
                         const filteredData = filterData(originalData, filterCriteria, 'deposits');
                         renderTable(filteredData, commentModal, 'deposits');
                     });
+                });
+
+                document.getElementById('rentRollDownload').addEventListener('click', function() {
+                    console.log('Downloading rent roll');
+                    rentRollDownloadSchedule();
                 });
 
                 document.getElementById('depositDownload').addEventListener('click', function() {
@@ -396,6 +405,31 @@
                 .catch(error => {
                     console.error('Error calling Azure Function:', error);
                 });
+        }
+
+        function rentRollDownloadSchedule() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadRentRoll?code=2ZRFLWuU_SoSAvlKNPN8_-ATQSQ55F6uJpqLTNXnElvSAzFu4C4JYg==';
+
+            fetch(azureFunctionURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'rentRollSchedule.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+            });
         }
 
         function depositDownloadSchedule() {

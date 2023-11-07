@@ -62,10 +62,11 @@
                     <input type="number" class="form-control" id="sqlInput">
                 </div>
 
-                <button id="regenerateStatements" onclick="regenerateStatements()">Regenerate Statements</button>
-                <p id="regenerateStatementsMessage"></p>
+                <!-- <button id="regenerateStatements" onclick="regenerateStatements()">Regenerate Statements</button> -->
+                <!-- <p id="regenerateStatementsMessage"></p> -->
                 <div>Last Updated: <span id="lastUpdatedTransactions">Loading...</span></div>
-                <button id="whatsappStatements" onclick="sendWhatsappStatements()">Send Statements</button>
+                <!-- <button id="whatsappStatements" onclick="sendWhatsappStatements()">Send Statements</button> -->
+                <button id="downloadPayoutSchedule" onclick="downloadPayoutSchedule()">Download Payout Schedule</button>
             </div>
         </div>
     </div>
@@ -96,7 +97,8 @@
 
         function setHeading(asOfDate) {
             // Set the heading with the as_of date
-            const headingHtml = `<h1 class="text-center">Homeowner Statements as of now</h1>`;
+            const headingHtml = `<h1 class="text-center">Homeowner Statements</h1>`;
+            // const headingHtml = `<h1 class="text-center">Homeowner Statements as of now</h1>`;
             document.getElementById('heading').innerHTML = headingHtml;
         }
 
@@ -251,6 +253,31 @@
             .catch((error) => {
                 console.error('Error:', error);
                 // Handle errors here
+            });
+        }
+
+        function downloadPayoutSchedule() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadPayoutList?code=gUjqt1N2YSBM3bLhvMQ9gIrMOwtbM0BmyLsxHftCiUIXAzFuAF6gbA==';
+
+            fetch(azureFunctionURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'payoutSchedule.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
             });
         }
 
