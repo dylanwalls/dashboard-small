@@ -124,7 +124,7 @@
                     }
                 }
                 table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="handleButtonClick('${row.property_id}')">Regenerate Statements</button></td>`;
-                // table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="sendWhatsappStatements('${row.property_id}')">Send Statement</button></td>`;
+                table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="sendWhatsappStatements('${row.property_id}')">Send Statement</button></td>`;
                 table += '</tr>';
             });
             table += '</tbody></table>';
@@ -228,33 +228,42 @@
         }
 
 
-        function sendWhatsappStatements(propertyId) {
+        async function sendWhatsappStatements(propertyId) {
             const functionUrl = 'https://python38-functions.azurewebsites.net/api/numbersSendHomeowners?code=XQdyh0NCXPjW7VuODt8-xwYjn4f785hGjkjsazkwx1GqAzFu-YAVvQ==';
 
-            fetch(functionUrl, {
-                method: 'POST', // or 'GET' if your function expects a GET request
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    id: propertyId
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+            console.log('Property ID: ', propertyId);
+            console.log('Sending JSON data:', JSON.stringify({ id: propertyId }));
+            
+            try {
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        id: propertyId
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    console.log('Response is OK');
+                    alert('The message was sent correctly.');
+                } else {
+                    console.error('Response is not OK');
+                    alert('There was an error sending the message.');
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Function triggered successfully:', data);
-                // Add any additional logic you want to perform on success here
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                // Handle errors here
-            });
+
+                return response; // Return the response object without reading the body
+            } catch (e) {
+                console.error('Error in fetch request:', e);
+                alert('An error occurred while sending the message.');
+                throw e;
+            }
         }
+
+
 
         function downloadPayoutSchedule() {
             const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadPayoutList?code=gUjqt1N2YSBM3bLhvMQ9gIrMOwtbM0BmyLsxHftCiUIXAzFuAF6gbA==';
