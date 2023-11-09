@@ -196,13 +196,17 @@
                 
                 if (response.ok) {
                     console.log('Response is OK');
+                    alert('The statement was regenerated correctly.');
+                    window.location.reload();
                 } else {
                     console.error('Response is not OK');
+                    alert('There was an error regenerating the statement.');
                 }
 
                 return response; // Return the response object without reading the body
             } catch (e) {
                 console.error('Error in fetch request:', e);
+                alert('An error occurred while generating the statement.');
                 throw e;
             }
         }
