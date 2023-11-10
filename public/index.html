@@ -241,6 +241,8 @@
                                     return;
                                 }
 
+                                
+
                                 // Make an API request to update the comment in the database
                                 const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/updateComments?code=d2O6a2c4ZB-XRtNhCCm5bxtSye0viZVQ-bog5Q9NpvO3AzFuhig-iQ==`, {
                                     method: 'POST', // Use the appropriate HTTP method (e.g., PUT) for updating data
@@ -409,12 +411,14 @@
 
         function rentRollDownloadSchedule() {
             const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadRentRoll?code=2ZRFLWuU_SoSAvlKNPN8_-ATQSQ55F6uJpqLTNXnElvSAzFu4C4JYg==';
-
+            const month = document.getElementById('filterMonth').value;
+            console.log('month: ', month);
             fetch(azureFunctionURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({"month": month}),
             })
             .then(response => response.blob())
             .then(blob => {
@@ -422,7 +426,7 @@
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
-                a.download = 'rentRollSchedule.xlsx';
+                a.download = `rentRollSchedule_${month}.xlsx`;
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
