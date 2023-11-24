@@ -3,13 +3,13 @@
 const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/rentRoll?code=N--G6_gY23Znla-XYPXaZ18UqoLlQiA1ujeJcdyrUKupAzFushCcUg==';
 
 async function fetchData(params = {}) {
-    console.log('fetch data started');
+    // console.log('fetch data started');
     // Turn the params object into a URL search string
     const searchParams = new URLSearchParams(params);
 
     // Construct URL with parameters
     const url = `${apiUrl}?${searchParams.toString()}`;
-    console.log(url);
+    // console.log(url);
 
     try {
         // Start the fetch request using the constructed URL
@@ -29,7 +29,7 @@ async function fetchData(params = {}) {
 
         // Parse the response body as JSON
         const data = await response.json();
-        console.log("Fetched Data:", data);
+        // console.log("Fetched Data:", data);
         return data;
     } catch (error) {
         // Handle errors, like network issues or invalid JSON
@@ -63,7 +63,7 @@ async function fetchDepositData(params = {}) {
     }
 }
 
-console.log('Data fetched');
+// console.log('Data fetched');
 // Export fetchData for use in other scripts
 export { fetchData, fetchDepositData };
 

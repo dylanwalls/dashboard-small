@@ -18,12 +18,12 @@ function filterData(data, criteria, currentTable) {
 
     // Sort the filtered data by month and unit_ref
     filteredData = sortData(filteredData);
-    console.log('Data filtered');
+    // console.log('Data filtered');
     return filteredData;
 }
 
 function sortData(data) {
-    console.log('sorting');
+    // console.log('sorting');
     // Sort data by month, then by homeowner, and then by unit_ref
     return data.sort((a, b) => {
         // First, sort by month

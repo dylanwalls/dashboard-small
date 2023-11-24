@@ -6,7 +6,7 @@ window.currentId = null;
 window.currentDataType = null;
 
 function renderTable(data, commentModal, dataType) {
-    console.log('Rendering table for:');
+    // console.log('Rendering table for:');
 
     const currentMonth = new Date().getMonth() + 1; // Get the current month (1-12)
 
@@ -31,7 +31,7 @@ function renderTable(data, commentModal, dataType) {
     table.classList.add('table', 'rent-roll-table'); // Set a CSS class for styling
 
     const headerRow = table.insertRow();
-    console.log('CREATING TABLE');
+    // console.log('CREATING TABLE');
 
     for (const key in data[0]) {
         if(key !== 'invoice_id') {
@@ -39,7 +39,7 @@ function renderTable(data, commentModal, dataType) {
             headerCell.innerText = key;
             const className = key.replace(/\s+/g, '-').toLowerCase();
             headerCell.classList.add(className);
-            console.log(`Class '${className}' assigned to header cell`);
+            // console.log(`Class '${className}' assigned to header cell`);
             headerCell.addEventListener('click', () => {
                 // Placeholder for sorting logic
             });
@@ -135,9 +135,9 @@ function renderTable(data, commentModal, dataType) {
         addButton.innerText = 'Add Comment';
         addButton.addEventListener('click', () => {
             // Set the current invoice ID
-            console.log('Button clicked');
+            // console.log('Button clicked');
             document.getElementById('comment').value = '';
-            console.log(rowData);
+            // console.log(rowData);
             if (dataType === 'rentRoll') {
                 window.currentId = rowData['invoice_id']; // Replace 'invoice_id' with the actual column name containing the invoice ID
                 window.currentDataType = 'Invoices';
@@ -180,5 +180,5 @@ function renderTable(data, commentModal, dataType) {
 }
 
 
-console.log('Data rendered');
+// console.log('Data rendered');
 export { renderTable };

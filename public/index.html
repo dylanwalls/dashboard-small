@@ -23,7 +23,7 @@
         <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
 
         <!-- Upload Transactions button that links to another page -->
-        <button id="uploadTransactions" class="btn btn-primary custom-btn" style="color: #fff;"><a href="upload_transactions.html">Upload Transactions</a></button>
+        <button id="uploadTransactions" class="btn btn-primary custom-btn"><a href="upload_transactions.html" class="btn btn-primary custom-btn" style="color: #fff;">Upload Transactions</a></button>
 
          <!-- Deposit calc button
          <button id="depositCalc" class="btn btn-primary custom-btn" style="color: #fff;">Calculate Deposits</button> -->
@@ -35,8 +35,11 @@
          <!-- Deposit schedule download button -->
          <button id="depositDownload" class="btn btn-primary custom-btn" style="color: #fff;">Download Deposit Schedule</button>
 
+         <!-- Deposit update button -->
+         <button id="depositUpdate" class="btn btn-primary custom-btn" style="color: #fff;">Update Deposit Interest and Status</button>
+
          <!-- Upload Transactions button that links to another page -->
-         <button id="statements" class="btn btn-primary custom-btn" style="color: #fff;"><a href="statements.html">Statements</a></button>
+         <button id="statements" class="btn btn-primary custom-btn"><a href="statements.html" class="btn btn-primary custom-btn" style="color: #fff;">Statements</a></button>
 
 
         <!-- Dropdown menu with other buttons on the far right -->
@@ -118,6 +121,12 @@
 
     <!-- Container to display table data -->
     <div id="functionData" class="container mt-4"></div>
+
+    <div id="notification" style="display: none;">
+        <div id="notification-content">
+          Function is running...
+        </div>
+      </div>      
 
     <!-- Comment Modal -->
     <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
@@ -226,6 +235,35 @@
                     depositDownloadSchedule();
                 });
 
+                document.getElementById('depositUpdate').addEventListener('click', async function() {
+                    console.log('Updating deposit interest and status');
+                    // Show "Function is running..." notification
+                    showNotification('Function is running...');
+                    try {
+                        await callAzureFunction();
+
+                        // Function completed successfully, show success message
+                        showNotification('Function completed successfully');
+                        
+                        // Hide the success message after a delay (e.g., 3 seconds)
+                        setTimeout(() => {
+                        hideNotification();
+                        }, 3000);
+
+                        // Call depositStatusCalc after Azure function is done
+                        depositStatusCalc();
+                    } catch (error) {
+                        // Handle errors here, and show an error message if needed
+                        console.error('Error:', error);
+                        showNotification('Error occurred during function execution');
+                    } finally {
+                        // Ensure that the notification is hidden even in case of errors
+                        setTimeout(() => {
+                        hideNotification();
+                        }, 3000);
+                    }
+                });
+
                 // Event Listener for saveCommentButton
                 const saveCommentButton = document.getElementById('saveCommentButton');
                 if(saveCommentButton) { // ensure the element exists to avoid errors
@@ -314,8 +352,6 @@
                     console.error('Error fetching metadata:', error);
                     document.getElementById('lastUpdated').textContent = 'Error fetching last updated timestamp';
                 }
-                callAzureFunction();
-                depositStatusCalc();
             // const callFunctionButton = document.getElementById('depositCalc');
 
             // callFunctionButton.addEventListener('click', () => {
@@ -371,23 +407,42 @@
             }
         }
 
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationContent = document.getElementById('notification-content');
+            notificationContent.innerText = message;
+            notification.style.display = 'block';
+        }
+
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            notification.style.display = 'none';
+        }
+
         function callAzureFunction() {
             const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
 
-            fetch(azureFunctionURL, {
+            return fetch(azureFunctionURL, {
                 method: 'POST', // Specify the HTTP method as POST
                 headers: {
                     'Content-Type': 'application/json', // Set the content type if you're sending JSON data
                 },
             })
-                .then(response => response.text())
-                .then(data => {
-                    console.log('Azure Function responded with:', data);
-                    // You can handle the response here, such as updating the UI.
-                })
-                .catch(error => {
-                    console.error('Error calling Azure Function:', error);
-                });
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log('Azure Function responded with:', data);
+                // You can handle the response here, such as updating the UI.
+                return data;
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+                throw error;
+            });
         }
 
         function depositStatusCalc() {
