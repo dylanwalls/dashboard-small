@@ -26,7 +26,7 @@
             justify-content: center;
             align-items: center;
             margin: auto;
-            padding: 10px;
+            padding: 100px;
         }
         iframe {
             width: 100%;
@@ -89,8 +89,18 @@
             </div>
         </div>
     </nav>
-    <div class="report-container">
-        <iframe title="Report Section" src="https://app.powerbi.com/view?r=eyJrIjoiNjIzYWRmZmUtZWI2OC00NTU2LWEwMmQtNjM4NTNjOWQ5MjQ5IiwidCI6ImRhMjE0MDdiLTdiNTMtNGQzNS1iYTIzLTliYmQ4NmQ5Zjc2ZCJ9" allowFullScreen="true"></iframe>
+    <div> 
+        <!-- Rent roll download button -->
+        <button id="refreshDashboard" class="btn btn-primary custom-btn" onclick="refreshIframe()" style="color: #fff;">Rent Roll Download</button>
     </div>
+    <div class="report-container">
+        <iframe id="dashboardIframe" title="Report Section" src="https://app.powerbi.com/view?r=eyJrIjoiNjIzYWRmZmUtZWI2OC00NTU2LWEwMmQtNjM4NTNjOWQ5MjQ5IiwidCI6ImRhMjE0MDdiLTdiNTMtNGQzNS1iYTIzLTliYmQ4NmQ5Zjc2ZCJ9" allowFullScreen="true"></iframe>
+    </div>
+<script>
+    function refreshIframe() {
+        var iframe = document.getElementById('dashboardIframe');
+        iframe.src = iframe.src;
+    }
+</script>
 </body>
 </html>
