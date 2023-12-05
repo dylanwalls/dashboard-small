@@ -273,10 +273,10 @@
             const files = multipleFileInput.files;
             const month = document.getElementById('monthDropdown').value;
             const year = document.getElementById('yearInput').value;
-            const propertyRef = document.getElementById('property').value;
+            // const propertyRef = document.getElementById('property').value;
             console.log('month: ', month);
             console.log('year: ', year);
-            console.log('property ref: ', propertyRef);
+            // console.log('property ref: ', propertyRef);
 
             if (files.length > 0) {
                 // Display a loading message
@@ -288,7 +288,7 @@
                     formData.append('csvFile', file);
                     formData.append('month', month);
                     formData.append('year', year);
-                    formData.append('propertyRef', propertyRef);
+                    // formData.append('propertyRef', propertyRef);
 
                     try {
                         const response = await fetch('https://python38-functions.azurewebsites.net/api/importCitiqStatements?code=IYDMZ2ic0zjNk8Qva2qHxbiVvGagGlyz1vOlpl1P4ydMAzFunf5d5A==', {
