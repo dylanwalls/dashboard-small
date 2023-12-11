@@ -97,6 +97,22 @@ function renderTable(data, commentModal, dataType) {
                         if (!isNaN(deposit_balance) && deposit_balance < 0) {
                             cell.classList.add('zero-amount'); // Assumes you have CSS styling for .negative-balance for highlighting
                         }
+                    } else if (key === 'occupied') {
+                        // Logic for 'occupied' key
+                        if (rowData[key] === true) {
+                            cell.innerText = 'true';
+                        } else if (rowData[key] === false) {
+                            cell.classList.add('zero-amount');
+                            cell.innerText = 'false'; // Optional: display 'false' as well
+                        }
+                    } else if (key === 'arrears') {
+                        // Logic for 'arrears' key
+                        if (rowData[key] === false) {
+                            cell.innerText = 'false';
+                        } else if (rowData[key] === true) {
+                            cell.classList.add('zero-amount');
+                            cell.innerText = 'true'; // Optional: display 'true' as well
+                        }
                     } else {
                         cell.innerText = rowData[key];
                     }
