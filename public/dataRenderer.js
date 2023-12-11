@@ -100,18 +100,18 @@ function renderTable(data, commentModal, dataType) {
                     } else if (key === 'occupied') {
                         // Logic for 'occupied' key
                         if (rowData[key] === true) {
-                            cell.innerText = 'true';
+                            cell.innerText = '';
                         } else if (rowData[key] === false) {
                             cell.classList.add('zero-amount');
-                            cell.innerText = 'false'; // Optional: display 'false' as well
+                            cell.innerText = 'Vacant'; // Optional: display 'false' as well
                         }
                     } else if (key === 'arrears') {
                         // Logic for 'arrears' key
                         if (rowData[key] === false) {
-                            cell.innerText = 'false';
+                            cell.innerText = '';
                         } else if (rowData[key] === true) {
                             cell.classList.add('zero-amount');
-                            cell.innerText = 'true'; // Optional: display 'true' as well
+                            cell.innerText = 'In Arrears'; // Optional: display 'true' as well
                         }
                     } else {
                         cell.innerText = rowData[key];
