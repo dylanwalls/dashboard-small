@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Add Bootstrap JavaScript and jQuery (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <title>Bitprop Rent Roll</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <!-- Title on the left -->
+        <a class="navbar-brand" href="#">Bitprop</a>
+
+        <!-- Navbar content -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item align-self-center">
+                    <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="board" class="btn btn-primary custom-btn"><a href="dashboard.html" class="btn btn-primary custom-btn" style="color: #fff;">Dashboard</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="statements" class="btn btn-primary custom-btn"><a href="statements.html" class="btn btn-primary custom-btn" style="color: #fff;">Statements</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="statements" class="btn btn-primary custom-btn"><a href="tenants.html" class="btn btn-primary custom-btn" style="color: #fff;">Tenant Management</a></button>
+                </li>
+                <li class="nav-item dropdown align-self-center">
+                    <button class="btn btn-primary dropdown-toggle custom-btn" type="button" id="functionsMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Functions
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="functionsMenuButton">
+                        <button id="rentRollDownload" class="dropdown-item">Rent Roll Download</button>
+                        <button id="depositDownload" class="dropdown-item">Download Deposit Schedule</button>
+                        <button id="depositUpdate" class="dropdown-item">Update Deposit Interest and Status</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Last Updated Label -->
+    <div class="container mt-2">
+        <div class="row">
+            <div class="col-md-12">
+                <span class="last-updated-label">Last Updated: <span id="lastUpdated">Loading...</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and search inputs -->
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-md-4" style="display:none;">
+                <label for="itemsPerPage">Items per page:</label>
+                <select id="itemsPerPage" class="form-control">
+                    <option value="">All</option>
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="300">300</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+
+                <label for="filterMonth">Filter by Month:</label>
+                <select id="filterMonth" class="form-control">
+                    <option value="">All</option>
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>->
+                </select>
+            </div>
+            <div class="col-md-4">
+
+                <label for="filterHomeowner">Filter by Homeowner:</label>
+                <input type="text" id="filterHomeowner" class="form-control" placeholder="Enter Homeowner">
+            </div>
+            <div class="col-md-4">
+
+                <label for="filterUnit">Filter by Unit:</label>
+                <input type="text" id="filterUnit" class="form-control" placeholder="Enter unit or property reference">
+            </div>
+            <!-- <button id="applyFiltersButton">Apply Filters</button> -->
+        </div>
+    </div>
+
+    <!-- Container to display table data -->
+    <div id="functionData" class="container mt-4"></div>
+
+    <div class="container mt-4" id="functionData">
+        <h2>Form</h2>
+        <form id="extendedForm" method="POST">
+            <div class="mb-3">
+                <label for="Name" class="form-label">Name:</label>
+                <input type="text" class="form-control" id="Name" name="Name" required>
+            </div>
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="Email" name="Email" required>
+            </div>
+            <div class="mb-3">
+                <label for="Phone" class="form-label">Primary Contact Number:</label>
+                <input type="text" class="form-control" id="Phone" name="Phone" pattern="0[0-9]{9}" placeholder="0123456789" required inputmode="numeric" minlength="10" maxlength="10">
+              </div>
+            <div class="mb-3">
+                <label for="IDNumber" class="form-label">ID Number:</label>
+                <input type="text" class="form-control" id="IDNumber" name="IDNumber" required>
+            </div>
+            <div class="mb-3">
+                <label for="Address" class="form-label">Address:</label>
+                <input type="text" class="form-control" id="Address" name="Address" required>
+            </div>
+            <div class="mb-3">
+                <label for="Flat" class="form-label">Flat:</label>
+                <input type="text" class="form-control" id="Flat" name="Flat" required>
+            </div>
+            <div class="mb-3">
+                <label for="LeaseStartDate" class="form-label">Lease Start Date:</label>
+                <input type="date" class="form-control" id="LeaseStartDate" name="LeaseStartDate" required>
+            </div>
+            <div class="mb-3">
+                <label for="Rent" class="form-label">Rent:</label>
+                <input type="number" class="form-control" id="Rent" name="Rent" required>
+            </div>
+            <div class="mb-3">
+                <label for="Deposit" class="form-label">Deposit:</label>
+                <input type="number" class="form-control" id="Deposit" name="Deposit" required>
+            </div>
+            <input type="hidden" id="CurrentDate" name="CurrentDate" value="">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>     
+
+    <!-- Comment Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add your comment input field here -->
+                    <div class="form-group">
+                        <label for="comment">Comment:</label>
+                        <textarea class="form-control" id="comment" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" id="saveCommentButton">Save Comment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript functions -->
+    <script type="module" src="main.js"></script>
+    <script type="module">
+        import { fetchData, fetchDepositData } from './dataFetcher.js';
+        import { filterData } from './dataFilter.js';
+        import { renderTable } from './dataRenderer.js';
+
+        
+
+        function callAzureFunction() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/depositInterestCalc?code=UDBOfGGuESjm_UznLdbouSW7azBNnYDiOo7fTVgw6QOEAzFuc_L4aQ==';
+
+            return fetch(azureFunctionURL, {
+                method: 'POST', // Specify the HTTP method as POST
+                headers: {
+                    'Content-Type': 'application/json', // Set the content type if you're sending JSON data
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log('Azure Function responded with:', data);
+                // You can handle the response here, such as updating the UI.
+                return data;
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+                throw error;
+            });
+        }
+
+        function depositStatusCalc() {
+            const depositStatusCalcUrl = 'https://python38-functions.azurewebsites.net/api/depositStatus?code=rGLnNfM0TlY5f1GYMPRzA2T17Zq4VB_nOSMv3KgH5Jt3AzFuOmnSug==';
+
+            fetch(depositStatusCalcUrl, {
+                method: 'POST', // Specify the HTTP method as POST
+                headers: {
+                    'Content-Type': 'application/json', // Set the content type if you're sending JSON data
+                },
+            })
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Azure Function responded with:', data);
+                    // You can handle the response here, such as updating the UI.
+                })
+                .catch(error => {
+                    console.error('Error calling Azure Function:', error);
+                });
+        }
+
+        function rentRollDownloadSchedule() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadRentRoll?code=2ZRFLWuU_SoSAvlKNPN8_-ATQSQ55F6uJpqLTNXnElvSAzFu4C4JYg==';
+            const month = document.getElementById('filterMonth').value;
+            console.log('month: ', month);
+            fetch(azureFunctionURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({"month": month}),
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `rentRollSchedule_${month}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+            });
+        }
+
+        function depositDownloadSchedule() {
+            const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadExcel?code=OmWnz5qzTyTy1Zrp3nQSLGWHbk0tKN4BAsr0QA9wgVAlAzFunCDdNA==';
+
+            fetch(azureFunctionURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'depositSchedule.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+            });
+        }
+
+        function validateTextInput(id) {
+            const input = document.getElementById(id);
+            if(input.value.trim() === "") {
+                input.style.borderColor = 'red';
+                return false;
+            } else {
+                input.style.borderColor = '';
+                return true;
+            }
+        }
+
+        function validatePhone(id) {
+            const phoneInput = document.getElementById(id);
+            if (phoneInput.value.length !== 10 || phoneInput.value[0] !== '0') {
+            phoneInput.style.borderColor = 'red';
+            return false;
+            } else {
+            phoneInput.style.borderColor = '';
+            return true;
+            }
+        }
+    
+
+        function validateRadioInput(name) {
+            const radios = document.getElementsByName(name);
+            for(let i = 0; i < radios.length; i++) {
+                if(radios[i].checked) {
+                    return true;
+                }
+            }
+            alert('Please answer all questions before proceeding.');
+            return false;
+        }
+
+        function validateDropdown(dropdownId) {
+            // Get the dropdown element by its ID
+            const dropdown = document.getElementById(dropdownId);
+
+            // Get the selected index and value
+            const selectedIndex = dropdown.selectedIndex;
+            console.log('selected index:', selectedIndex);
+            const selectedValue = dropdown.options[selectedIndex].value;
+            console.log('selectedvalue:', selectedValue);
+
+            // Validate the selected value
+            if (selectedValue === "" || selectedValue === "placeholderValue" /* or any invalid value */) {
+                // Optionally: Provide a visual cue for invalid selection
+                dropdown.style.borderColor = 'red';
+                console.log('validate dropdown false');
+                return false; // Invalid selection
+            } else {
+                dropdown.style.borderColor = ''; // Reset border color
+                console.log('validate dropdown true');
+                return true; // Valid selection
+            }
+        }
+        let min = 0;
+        let max = 100;
+        function validateNumber(inputId, min, max) {
+            // Get the input element by its ID
+            const numberInput = document.getElementById(inputId);
+
+            // Get the input value and parse it as a number
+            const numberValue = parseInt(numberInput.value, 10);
+
+            // Validate the number value
+            if (isNaN(numberValue) || numberValue < min || numberValue > max) {
+                // Optionally: Provide a visual cue for invalid input
+                numberInput.style.borderColor = 'red';
+                return false; // Invalid number input
+            } else {
+                numberInput.style.borderColor = ''; // Reset border color
+                return true; // Valid number input
+            }
+        }
+
+        const phoneInput = document.getElementById('Phone');
+        // const phoneError = document.getElementById('phone-error');
+
+        phoneInput.addEventListener('input', function () {
+        // Remove any non-numeric characters
+        this.value = this.value.replace(/\D/g, '');
+
+        // Ensure the first digit is '0'
+        if (this.value.length > 0 && this.value[0] !== '0') {
+            this.value = '0' + this.value;
+        }
+
+        // Limit to 10 digits
+        if (this.value.length > 10) {
+            this.value = this.value.substring(0, 10);
+        }
+
+        // Clear the error message when the user corrects the input
+        // phoneError.textContent = '';
+        });
+
+        document.getElementById('extendedForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get the current date and format it as a string
+        const currentDate = new Date().toISOString();
+
+        // Set the value of the hidden input field
+        document.getElementById('CurrentDate').value = currentDate;
+
+
+        const formData = new FormData(this);
+        const formObject = {};
+        formData.forEach((value, key) => {
+            // Optional: Convert numeric fields to integer
+            if (key === 'Phone' || key === 'IDNumber') {
+              if (typeof value !== 'string') {
+                console.warn('contactNumber should be a string. Converting to string.');
+                value = String(value);
+              }
+              formObject[key] = value;
+            } else {
+              if (!isNaN(value)) {
+                  formObject[key] = parseInt(value, 10);
+              } else if (value === 'yes') { // Convert yes to true, if you have boolean fields
+                  formObject[key] = true;
+              } else if (value === 'no') { // Convert no to false, if you have boolean fields
+                  formObject[key] = false;
+              } else {
+                  formObject[key] = value;
+              }
+            }
+        });
+
+
+        console.log(formObject);
+        
+        fetch('https://dashboard-function-app-1.azurewebsites.net/api/leaseInformation?code=7Lh-SuzSh6M_XLdqbwDT1JS8nHRaj_1HX4CAXOGvhyUXAzFuKiZVsA==', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formObject)
+        })
+        .then(response => {
+          console.log('Raw Response:', response);
+          console.log('Response Body:', response.body);
+          if(response.ok) {
+            const contentType = response.headers.get("content-type");
+            if(contentType && contentType.indexOf("application/json") !== -1) {
+              return response.json();
+            } else {
+              return response.text().then(text=> Promise.reject(text));
+            }
+          }
+          throw new Error('Network response was not ok');
+        })
+        .then(data => {
+          console.log('Success:', data);
+          window.location.href = '/success_tenant_information';
+        })
+        .catch((error) => console.error('Error:', error));
+    });
+
+    </script>
+</body>
+</html>
