@@ -43,6 +43,12 @@
                     <label for="monthInput">Month (1-12)</label>
                     <input type="number" class="form-control" id="monthInput" min="1" max="12" required>
                 </div>
+
+                <!-- Numeric input for Month -->
+                <div class="form-group">
+                    <label for="yearInput">Year</label>
+                    <input type="number" class="form-control" id="yearInput" value="2024" required>
+                </div>
         
                 <!-- Text input for Statement Date -->
                 <div class="form-group">
@@ -67,6 +73,7 @@
                 <div>Last Updated: <span id="lastUpdatedTransactions">Loading...</span></div>
                 <!-- <button id="whatsappStatements" onclick="sendWhatsappStatements()">Send Statements</button> -->
                 <button id="downloadPayoutSchedule" onclick="downloadPayoutSchedule()">Download Payout Schedule</button>
+                <button id="latestHomeownerTotals" onclick="latestHomeownerTotals()">Update Latest Homeowner Totals</button>
             </div>
         </div>
     </div>
@@ -110,12 +117,14 @@
             for (let column in data[0]) {
                 table += `<th>${column}</th>`;
             }
+            // Add a header for the actions column
+            table += '<th>Actions</th>';
             table += '</tr></thead><tbody>';
             // Add rows to the table
             data.forEach(row => {
                 table += '<tr>';
                 for (let column in row) {
-                    // Check if the column is 'latest_statements' and create a hyperlink
+                    // Check if the column is 'latest_statement' and create a hyperlink
                     if (column === 'latest_statement') {
                         // Assuming that `row[column]` contains a valid URL
                         table += `<td><a href="${row[column]}" target="_blank">${row[column]}</a></td>`;
@@ -123,26 +132,41 @@
                         table += `<td>${row[column]}</td>`;
                     }
                 }
-                table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="handleButtonClick('${row.property_id}')">Regenerate Statements</button></td>`;
-                table += `<td><button class="btn btn-primary" style="color: #000000;" onclick="sendWhatsappStatements('${row.property_id}')">Send Statement</button></td>`;
+                // Add buttons for actions
+                table += `<td>
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button type="button" class="btn btn-primary btn-sm" style="color: #000000;" onclick="navigateToTransactionsPage('${row.property_id}')">View</button>
+                        <button type="button" class="btn btn-primary btn-sm" style="color: #000000;" onclick="handleButtonClick('${row.property_id}')">Regenerate</button>
+                        <button type="button" class="btn btn-primary btn-sm" style="color: #ff0000;" onclick="sendWhatsappStatements('${row.property_id}')">Send</button>
+                        
+                    </div>
+                        </td>`;
                 table += '</tr>';
             });
             table += '</tbody></table>';
-            // Insert the table into the 'functionData' div
+            // Insert the table into the 'functionData' div or whichever div you're using to display the table
             document.getElementById('functionData').innerHTML = table;
         }
+
+        function navigateToTransactionsPage(propertyId) {
+            // Redirect to the transactions page for the selected property
+            window.location.href = `transactions.html?propertyId=${propertyId}`;
+        }
+
 
         async function regenerateStatements() {
             const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
             const monthInput = document.getElementById('monthInput').value;
             const month = parseInt(monthInput, 10);
+            const yearInput = document.getElementById('yearInput').value;
+            const year = parseInt(yearInput, 10);
             const statementDate = document.getElementById('statementDateInput').value;
             const bulkComments = document.getElementById('bulkComments').value;
             const sqlInput = document.getElementById('sqlInput').value;
             console.log('is final: ', isFinal);
             console.log('sql: ', sqlInput);
             // Call your Azure Function with the isFinal parameter
-            const response = await regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput);
+            const response = await regenerateFunction(isFinal, month, year, statementDate, bulkComments, sqlInput);
             
             // Check if the response status is OK (200)
             if (response.status === 200) {
@@ -161,9 +185,10 @@
             }
         }
 
-        async function regenerateFunction(isFinal, month, statementDate, bulkComments, sqlInput) {
+        async function regenerateFunction(isFinal, month, year, statementDate, bulkComments, sqlInput) {
             console.log('is final: ', isFinal);
             console.log('month: ', month);
+            console.log('year: ', year);
             console.log('statement date: ', statementDate);
             console.log('bulk comments: ', bulkComments);
             console.log('sql input: ', sqlInput);
@@ -172,6 +197,7 @@
             console.log('Sending JSON data:', JSON.stringify({ 
                 final: isFinal,
                 month: month,
+                year: year,
                 statementDate: statementDate,
                 bulkComments: bulkComments,
                 sqlInput: sqlInput
@@ -186,6 +212,7 @@
                     body: JSON.stringify({ 
                         final: isFinal,
                         month: month,
+                        year: year,
                         statementDate: statementDate,
                         bulkComments: bulkComments,
                         sqlInput: sqlInput
@@ -218,14 +245,16 @@
             console.log('Button clicked for property ID:', propertyId);
             const isFinal = document.getElementById('isFinalCheckbox').checked ? 1 : 0;
             const monthInput = document.getElementById('monthInput').value;
+            const yearInput = document.getElementById('yearInput').value;
             const statementDateInput = document.getElementById('statementDateInput').value;
 
             // Check if both "Month" and "Statement Date" inputs have values
             if (monthInput.trim() !== '' && statementDateInput.trim() !== '') {
                 const month = parseInt(monthInput, 10);
+                const year = parseInt(yearInput, 10);
                 const sqlInput = parseInt(propertyId, 10);
                 const bulkComments = document.getElementById('bulkComments').value;
-                regenerateFunction(isFinal, month, statementDateInput, bulkComments, sqlInput);
+                regenerateFunction(isFinal, month, year, statementDateInput, bulkComments, sqlInput);
             } else {
                 alert('Please fill in both the Month and Statement Date fields.');
             }
@@ -291,6 +320,46 @@
             })
             .catch(error => {
                 console.error('Error calling Azure Function:', error);
+            });
+        }
+
+        function latestHomeownerTotals() {
+            const latesthomeownerTotalsUrl = 'https://python38-functions.azurewebsites.net/api/updateLatestHomeownerTotals?code=yCmLmQIRqcacX-Oxz8Fg1UDSiT9SJKTjIm5dPELhgd-uAzFuHHOoQg==';
+
+            // Get the month value from the input field
+            const monthInput = document.getElementById('monthInput').value;
+            console.log('Month:', monthInput);
+
+            // Check if the month input is not empty and is a valid number
+            if (!monthInput || isNaN(monthInput)) {
+                alert('Please enter a valid month number.');
+                return;
+            }
+
+            const data = {
+                month: parseInt(monthInput, 10)  // Ensure the month is an integer
+            };
+            console.log('Data:', data);
+            fetch(latesthomeownerTotalsUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)  // Send the month data
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text();  // or response.json() if the response is in JSON format
+                } else {
+                    throw new Error('Network response was not ok.');
+                }
+            })
+            .then(text => {
+                alert("The function has completed successfully: " + text);
+            })
+            .catch(error => {
+                console.error('Error calling Azure Function:', error);
+                alert("Error calling Azure Function: " + error.message);
             });
         }
 

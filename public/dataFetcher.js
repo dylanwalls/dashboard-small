@@ -63,8 +63,40 @@ async function fetchDepositData(params = {}) {
     }
 }
 
+const propertiesApiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchProperties?code=PbLFQnny_dAVTEahIaLoUyS0SVaPxYRY-pSDWpaANOCEAzFuMyC1eA==';
+
+async function fetchPropertiesData(params = {}) {
+    // Similar to fetchData() but uses depositApiUrl
+    const searchParams = new URLSearchParams(params);
+    const url = `${propertiesApiUrl}?${searchParams.toString()}`;
+
+    try {
+        const response = await fetch(propertiesApiUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+}
+
+async function fetchInvoicesData(propertyId) {
+    // Replace with actual API endpoint and fetch logic
+    const response = await fetch(`https://dashboard-function-app-1.azurewebsites.net/api/fetchInvoices?code=GpH_8ez3r5b9ffMKX3Hwp8OSfO_npzezEKBT-ZHfAkCsAzFual1bzg==&property_id=${propertyId}`);
+    const data = await response.json();
+    return data;
+}
+
 // console.log('Data fetched');
 // Export fetchData for use in other scripts
-export { fetchData, fetchDepositData };
+export { fetchData, fetchDepositData, fetchPropertiesData, fetchInvoicesData };
 
   

@@ -39,7 +39,20 @@ function applyFiltersAndSort() {
 }
 
 // Attach event listeners
-document.getElementById('itemsPerPage').addEventListener('change', applyFiltersAndSort);
-document.getElementById('filterMonth').addEventListener('change', applyFiltersAndSort);
-document.getElementById('filterHomeowner').addEventListener('input', applyFiltersAndSort);
-document.getElementById('filterUnit').addEventListener('input', applyFiltersAndSort);
+// Check if the element exists before adding an event listener
+if (document.getElementById('itemsPerPage')) {
+  document.getElementById('itemsPerPage').addEventListener('change', applyFiltersAndSort);
+}
+
+if (document.getElementById('filterMonth')) {
+  document.getElementById('filterMonth').addEventListener('change', applyFiltersAndSort);
+}
+
+if (document.getElementById('filterHomeowner')) {
+  document.getElementById('filterHomeowner').addEventListener('input', applyFiltersAndSort);
+}
+
+if (document.getElementById('filterUnit')) {
+  document.getElementById('filterUnit').addEventListener('input', applyFiltersAndSort);
+}
+

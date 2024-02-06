@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Additional head content -->
+    <title>Invoices for Property</title>
+</head>
+<body>
+    <div id="propertyDetails">
+        <!-- Property details will be displayed here -->
+    </div>
+    <div style="text-align: right; margin-top: 10px; margin-right: 10px;">
+        <button id="backButton">Back to Properties</button>
+    </div>
+    <!-- Your navbar and other content -->
+    <div class="filters">
+        <!-- Add this inside your invoices.html where you want the filters -->
+
+        <!-- Filter by Paid/Unpaid or Partially Paid -->
+        <label for="paidFilter">Payment Status</label>
+        <select id="paidFilter">
+            <option value="">All</option>
+            <option value="Paid">Paid</option>
+            <option value="Incomplete">Incomplete</option>
+        </select>
+
+        <!-- Filter by Month -->
+        <label for="monthFilter">Month</label>
+        <select id="monthFilter">
+            <option value="">All Months</option>
+            <option value="1">January</option>
+            <option value="2">February</option>
+            <option value="3">March</option>
+            <option value="4">April</option>
+            <option value="5">May</option>
+            <option value="6">June</option>
+            <option value="7">July</option>
+            <option value="8">August</option>
+            <option value="9">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+        </select>
+        
+
+        <!-- Filter by Year -->
+        <label for="yearFilter">Year</label>
+        <select id="yearFilter">
+            <option value="">All</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <!-- Add options for other years if needed -->
+        </select>
+
+        <!-- Filter by Payout Date -->
+        <label for="payoutDateFilter">Payout Date</label>
+        <select id="payoutDateFilter">
+            <option value="">All Dates</option>
+            <!-- Options will be added dynamically based on data -->
+        </select>
+
+        <button id="applyFilters">Apply Filters</button>
+        <button id="resetFilters">Reset</button>
+
+
+    </div>
+    <div style="text-align: right; margin-top: 10px; margin-right: 10px;">
+        <button id="loadInvoicePayouts">Approve Payouts</button>
+    </div>
+    <div id="totalPayout" style="text-align: right; margin-top: 10px; margin-right: 10px;">
+        Total To Pay Out: <span id="totalPayoutValue">0</span>
+    </div>
+    
+
+    <!-- Container to display invoices table -->
+    <div id="invoicesData" class="container mt-4"></div>
+
+    <!-- JavaScript to fetch and display invoices data -->
+    <script type="module" src="invoicesPage.js"></script>
+</body>
+</html>

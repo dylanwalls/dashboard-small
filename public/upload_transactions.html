@@ -82,6 +82,12 @@
     </div> -->
     <input type="file" id="multipleFileInput" accept=".csv" multiple>
     <button id="uploadMultipleButton">Upload Files</button>
+    <button id="sendCitiqValuesButton">Send Citiq Values To All Homeowners</button>
+    <div>
+        <label for="yearInput">Property Reference:</label>
+        <input type="text" id="propertyRefInput" name="propertyRefInput">
+        <button id="sendCitiqValuesButtonSpecific">Send Citiq Values To Specific Homeowner</button>
+    </div>
     <p id="uploadMultipleStatusMessage"></p>
     <!-- <div>Last Updated: <span id="lastUpdatedMultiple">Loading...</span></div> -->
 
@@ -315,6 +321,8 @@
 
         const multipleFileInput = document.getElementById('multipleFileInput');
         const uploadMultipleButton = document.getElementById('uploadMultipleButton');
+        const sendCitiqValuesButton = document.getElementById('sendCitiqValuesButton');
+        const sendCitiqValuesButtonSpecific = document.getElementById('sendCitiqValuesButtonSpecific');
         const uploadMultipleStatusMessage = document.getElementById('uploadMultipleStatusMessage');
 
         uploadMultipleButton.addEventListener('click', async () => {
@@ -364,6 +372,82 @@
                 uploadMultipleStatusMessage.textContent = 'Please select files and fill in all fields.';
             }
         });
+
+        sendCitiqValuesButton.addEventListener('click', async () => {
+                // Display a loading message
+                uploadMultipleStatusMessage.textContent = 'Sending values to homeowners...';
+
+                    try {
+                        const requestBody = {
+                            "send_to_all": true
+                        };
+                        const response = await fetch('https://python38-functions.azurewebsites.net/api/sendCitiqValues?code=0BNSZemnxrYh4-43wD7uaGzAw8Ia-r7OzgQKcL8qZTExAzFuQ6INDA==', {
+                            method: 'POST',
+                            mode: 'cors',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestBody)
+                        });
+
+                        if (response.ok) {
+                            // Display a success message for each file
+                            uploadMultipleStatusMessage.textContent += `Messages sent successfully.\n`;
+                            // updateLastUpdatedLabel('lastUpdatedMultiple', 'last_updated_multiple');
+                            // updateMetadataLabels();
+                        } else {
+                            // Display an error message for each file
+                            uploadMultipleStatusMessage.textContent += `Message sending failed. Please try again.\n`;
+                        }
+                    } catch (error) {
+                        console.error(`Error (line 390)`, error);
+                        uploadMultipleStatusMessage.textContent += `An error occurred (line 390). Please try again later.\n`;
+                    }
+                }   
+        );
+
+        sendCitiqValuesButtonSpecific.addEventListener('click', async () => {
+            
+            // Get the property_ref value from the text box
+            const propertyRefValue = document.getElementById('propertyRefInput').value.trim();
+
+            // Update the message to include the property reference value
+            uploadMultipleStatusMessage.textContent = `Sending values to homeowner with reference: ${propertyRefValue}...`;
+
+            
+
+            // Ensure that the propertyRefValue is not empty
+            if (!propertyRefValue) {
+                console.error('Property reference is required');
+                uploadMultipleStatusMessage.textContent += 'Property reference is required. Please enter a value and try again.\n';
+                return; // Exit the function if propertyRefValue is empty
+            }
+
+            const requestBody = {
+                "property_ref": propertyRefValue // Use the text value directly
+            };
+
+            try {
+                const response = await fetch('https://python38-functions.azurewebsites.net/api/sendCitiqValues?code=0BNSZemnxrYh4-43wD7uaGzAw8Ia-r7OzgQKcL8qZTExAzFuQ6INDA==', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    uploadMultipleStatusMessage.textContent += `Messages sent successfully.\n`;
+                } else {
+                    uploadMultipleStatusMessage.textContent += `Message sending failed. Please try again.\n`;
+                }
+            } catch (error) {
+                console.error(`Error`, error);
+                uploadMultipleStatusMessage.textContent += `An error occurred. Please try again later.\n`;
+            }
+        });
+
 
         async function fetchMetadata() {
             try {
