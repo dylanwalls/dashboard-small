@@ -48,7 +48,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         // Calculate and display homeowner amount for each row (15% of amount paid)
                         const amountPaid = parseFloat(txn['amount_paid']);
-                        const homeownerAmount = 0.15 * amountPaid;
+                        let homeownerAmount;
+                        // Check property_id and calculate homeowner amount accordingly
+                        if (propertyId === '151') {
+                            // For property_id 151, use 17.5%
+                            homeownerAmount = 0.175 * amountPaid;
+                        } else if (propertyId === '137') {
+                            // For property_id 137, use 35%
+                            homeownerAmount = 0.35 * amountPaid;
+                        } else {
+                            // For all other properties, use 15%
+                            homeownerAmount = 0.15 * amountPaid;
+                        }
                         table += `<td>${homeownerAmount.toFixed(2)}</td>`;
 
                         // Add the homeowner amount to the total to homeowner
