@@ -36,6 +36,13 @@
     <p id="uploadPropertyStatusMessage"></p>
     <div>Last Updated: <span id="lastUpdatedProperties">Loading...</span></div>
 
+    <h1>Upload Indlu Payout List</h1>
+    <input type="file" id="indluPayoutFileInput">
+    <button id="uploadIndluPayoutButton">Upload Indlu Payout</button>
+    <button id="reconcileIndluPayoutButton">Reconcile Indlu Payout</button>
+    <p id="uploadIndluPayoutMessage"></p>
+    <div>Last Updated: <span id="lastUpdatedIndluPayout">Loading...</span></div>
+
     <h1>Reconcile Transactions</h1>
     <button id="reconcileButton">Reconcile</button>
     <p id="reconciliationStatusMessage"></p>
@@ -138,6 +145,11 @@
         const uploadPropertyButton = document.getElementById('uploadPropertyButton');
         const uploadPropertyStatusMessage = document.getElementById('uploadPropertyStatusMessage');
 
+        const indluPayoutFileInput = document.getElementById('indluPayoutFileInput');
+        const uploadIndluPayoutButton = document.getElementById('uploadIndluPayoutButton');
+        const uploadIndluPayoutMessage = document.getElementById('uploadIndluPayoutMessage');
+        const reconcileIndluPayoutButton = document.getElementById('reconcileIndluPayoutButton');
+
         const reconcileButton = document.getElementById('reconcileButton');
         const reconciliationStatusMessage = document.getElementById('reconciliationStatusMessage');
 
@@ -222,6 +234,71 @@
                 uploadPropertyStatusMessage.textContent = 'Please select a property file to upload.';
             }
         });
+
+        uploadIndluPayoutButton.addEventListener('click', async () => {
+            const indluPayoutFile = indluPayoutFileInput.files[0];
+
+            if (indluPayoutFile) {
+                // Display a loading message
+                uploadIndluPayoutMessage.textContent = 'Uploading...';
+
+                // Create a FormData object and append the property file
+                const formData = new FormData();
+                formData.append('excelFile', indluPayoutFile);
+
+                try {
+                    // Send a POST request to your backend with the property file data
+                    const response = await fetch('https://python38-functions.azurewebsites.net/api/importIndluPayoutList?code=ELmDi9SMiY5MgjEScE2OzA0_1rQ6aGN3azmkH1kWYTt2AzFunxdXtA==', {
+                        method: 'POST',
+                        body: formData,
+                        mode: 'cors',
+                    });
+
+                    if (response.ok) {
+                        // Display the message from the response
+                        const message = await response.text(); // Assuming the message is plain text
+                        uploadIndluPayoutMessage.textContent = message;
+                    } else {
+                        // Display an error message
+                        uploadIndluPayoutMessage.textContent = 'Upload failed. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('Error uploading Indlu payout file:', error);
+                    // Display an error message
+                    uploadIndluPayoutMessage.textContent = 'An error occurred. Please try again later.';
+                }
+            } else {
+                // Display a message if no property file is selected
+                uploadIndluPayoutMessage.textContent = 'Please select an Indlu payout file to upload.';
+            }
+        });
+
+        reconcileIndluPayoutButton.addEventListener('click', async () => {
+            // Display a loading message
+            uploadIndluPayoutMessage.textContent = 'Reconciling Indlu payout...';
+
+            try {
+                // Send a POST request to trigger the reconciliation function
+                const response = await fetch('https://python38-functions.azurewebsites.net/api/reconcileIndluPayout?code=zAHmuFY9vRCuWPtuuKLX8E059BdX1FisEB6381aIgsGJAzFuz6Spdg==', {
+                    method: 'POST',
+                    mode: 'cors',
+                });
+
+                if (response.ok) {
+                    // Display a success message
+                    uploadIndluPayoutMessage.textContent = 'Reconciliation successful.';
+                } else {
+                    // Display an error message
+                    uploadIndluPayoutMessage.textContent = 'Reconciliation failed. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error reconciling transactions:', error);
+                // Display an error message
+                uploadIndluPayoutMessage.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+
+
         citiqMetersList = document.getElementById('citiqMetersList');
         citiqMetersInput = document.getElementById('citiqMetersInput');
         uploadMetersStatusMessage = document.getElementById('uploadMetersStatusMessage');

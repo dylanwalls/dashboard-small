@@ -28,7 +28,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     // Generate table headings dynamically from variable names
                     for (const key in transactions[0]) {
-                        table += `<th>${key.replace(/_/g, ' ').toUpperCase()}</th>`;
+                        if (key !== 'property_id' && key !== 'unit_id' && key !== 'amount_paid_out') {
+                            if (key === 'month') {
+                                table += '<th>Month</th>'; // Display 'Month' label instead of key name
+                            } else if (key === 'date_paid') {
+                                table += '<th>Date Paid</th>'; // Display 'Date Paid' label instead of key name
+                            } else {
+                                table += `<th>${key.replace(/_/g, ' ').toUpperCase()}</th>`;
+                            }
+                        }
                     }
 
                     // Add additional columns for homeowner amounts
@@ -43,7 +51,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         // Generate table rows dynamically from data
                         for (const key in txn) {
-                            table += `<td>${txn[key]}</td>`;
+                            if (key !== 'property_id' && key !== 'unit_id' && key !== 'amount_paid_out') {
+                                if (key === 'month') {
+                                    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                                    const monthIndex = parseInt(txn[key]) - 1; // Convert month value to index
+                                    table += `<td>${monthNames[monthIndex]}</td>`; // Display month name
+                                } else if ((key === 'date_paid' || key === 'payout_date') && txn[key]) {
+                                    table += `<td>${txn[key].substring(0, 10)}</td>`; // Display only the first 10 characters of date_paid if it exists
+                                } else {
+                                    table += `<td>${txn[key]}</td>`;
+                                }
+                            }
                         }
 
                         // Calculate and display homeowner amount for each row (15% of amount paid)
@@ -72,13 +90,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
 
                     // Add the "Total" row with values at the bottom of columns
-                    table += '<tr>';
-                    table += `<td colspan="${Object.keys(transactions[0]).length - 8}"></td>`; // Empty cell
-                    table += `<td>Total of Amount Paid</td>`;
+                    table += '<tr class="total-row">';
+                    table += `<td colspan="${Object.keys(transactions[0]).length - 10}"></td>`; // Empty cell
+                    table += `<td>Total Paid</td>`;
                     table += `<td>${totalAmount.toFixed(2)}</td>`;
-                    table += `<td></td>`;
-                    table += `<td></td>`;
-                    table += `<td></td>`;
                     table += `<td></td>`;
                     table += `<td></td>`;
                     table += `<td>Total to Homeowner</td>`;
