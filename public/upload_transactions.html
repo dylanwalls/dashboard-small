@@ -40,6 +40,7 @@
     <input type="file" id="indluPayoutFileInput">
     <button id="uploadIndluPayoutButton">Upload Indlu Payout</button>
     <button id="reconcileIndluPayoutButton">Reconcile Indlu Payout</button>
+    <button id="downloadBatchPayoutButton">Download Batch Payout Table</button>
     <p id="uploadIndluPayoutMessage"></p>
     <div>Last Updated: <span id="lastUpdatedIndluPayout">Loading...</span></div>
 
@@ -148,6 +149,7 @@
         const indluPayoutFileInput = document.getElementById('indluPayoutFileInput');
         const uploadIndluPayoutButton = document.getElementById('uploadIndluPayoutButton');
         const uploadIndluPayoutMessage = document.getElementById('uploadIndluPayoutMessage');
+        const downloadBatchPayoutButton = document.getElementById('downloadBatchPayoutButton');
         const reconcileIndluPayoutButton = document.getElementById('reconcileIndluPayoutButton');
 
         const reconcileButton = document.getElementById('reconcileButton');
@@ -297,6 +299,49 @@
                 uploadIndluPayoutMessage.textContent = 'An error occurred. Please try again later.';
             }
         });
+
+        downloadBatchPayoutButton.addEventListener('click', async () => {
+            // Display a loading message
+            uploadIndluPayoutMessage.textContent = 'Downloading Batch Payout File...';
+
+            try {
+                // Send a POST request to trigger the reconciliation function
+                const response = await fetch('https://python38-functions.azurewebsites.net/api/downloadIndluReconTable?code=R1g1QFfV2Rzds15gWDaCG8glhZRs5K7BFJtc2xdhMmNMAzFuS6VXNA==', {
+                    method: 'POST',
+                    mode: 'cors',
+                });
+
+                if (response.ok) {
+                    // Create a Blob from the response data
+                    const blob = await response.blob();
+                    
+                    // Create an object URL for the blob object
+                    const url = window.URL.createObjectURL(blob);
+                    
+                    // Create a new anchor element
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'batchPayoutTable.xlsx'; // Set the file name for download
+                    document.body.appendChild(a); // Append the anchor to the body
+                    a.click(); // Programmatically click the anchor to trigger the download
+                    
+                    // Clean up by revoking the object URL and removing the anchor element
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+
+                    // Display a success message
+                    uploadIndluPayoutMessage.textContent = 'Download successful.';
+                } else {
+                    // Display an error message
+                    uploadIndluPayoutMessage.textContent = 'Download failed. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error downloading file:', error);
+                // Display an error message
+                uploadIndluPayoutMessage.textContent = 'An error occurred. Please try again later.';
+            }
+        });
+
 
 
         citiqMetersList = document.getElementById('citiqMetersList');
