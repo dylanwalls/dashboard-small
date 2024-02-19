@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <title>Bitprop Rent Roll</title>
+    <title>Leases</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
@@ -38,9 +38,6 @@
                     <button id="statements" class="btn btn-primary custom-btn"><a href="tenants.html" class="btn btn-primary custom-btn" style="color: #fff;">Tenant Management</a></button>
                 </li>
                 <li class="nav-item align-self-center">
-                    <button id="leases" class="btn btn-primary custom-btn"><a href="leases.html" class="btn btn-primary custom-btn" style="color: #fff;">Leases</a></button>
-                </li>
-                <li class="nav-item align-self-center">
                     <button id="uploads" class="btn btn-primary custom-btn"><a href="upload_transactions.html" class="btn btn-primary custom-btn" style="color: #fff;">Uploads</a></button>
                 </li>
                 <li class="nav-item dropdown align-self-center">
@@ -56,97 +53,142 @@
             </ul>
         </div>
     </nav>
+    <!-- Main content area for the Leases page -->
+    <div class="container mt-4">
+        
+        <!-- Section for leases ending soon -->
+        <div class="row">
+            <div class="col-md-6">
+                <h2 id="leases-four-months-heading">Leases ending in 4 months</h2>
+                <div id="leases-four-months-summary"></div>
+            </div>
+            <div class="col-md-6">
+                <h2 id="leases-next-month-heading">Leases ending next month</h2>
+                <div id="leases-next-month-summary"></div>
+            </div>            
+        </div>
+        
+        <!-- Section for all leases -->
+        <div class="mt-4" id="all-leases">
+            <h2>All Leases</h2>
+            <!-- Table to hold all leases -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Unit No</th>
+                        <th>Tenant Name</th>
+                        <th>Tenant ID Number</th>
+                        <th>Tenant Email</th>
+                        <th>Tenant Phone</th>
+                        <th>Current Rent</th>
+                        <th>Deposit</th>
+                        <th>Status Date</th>
+                        <th>Lease Start</th>
+                        <th>Last Payment Received</th>
+                        <th>Rent Escalation Date</th>
+
+                    </tr>
+                </thead>
+                <tbody id="leases-table-body">
+                    <!-- Table body to be populated with lease data -->
+                </tbody>
+            </table>
+        </div>
+    </div>
     
-    <!-- Last Updated Label -->
-    <div class="container mt-2">
-        <div class="row">
-            <div class="col-md-12">
-                <span class="last-updated-label">Last Updated: <span id="lastUpdated">Loading...</span></span>
-            </div>
-        </div>
-    </div>
+    <script>
+        // Placeholder function to simulate fetching data from your backend
+        async function fetchLeasesData() {
+            const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchLeases?code=Yfl0IjcwSQWSx6a8N0bYfkqpr2zeBOMGunnXGLyVdOKCAzFu69K0xQ=='; // Replace with your API endpoint for leases
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET', // or 'POST', depending on your API requirement
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json(); // This will return the data to the caller
+            } catch (e) {
+                console.error('There was a problem fetching the lease data.', e);
+            }
+        }
+    
+        async function populateLeasesData() {
+    const leasesData = await fetchLeasesData(); // This will wait for the data to be fetched
+    if (!leasesData) {
+        // Handle the case where no data is returned
+        console.error('No lease data was returned from the API.');
+        return;
+    }
+    const leasesTableBody = document.getElementById('leases-table-body');
+    const leasesFourMonthsSummary = document.getElementById('leases-four-months-summary');
+    const leasesNextMonthSummary = document.getElementById('leases-next-month-summary');
+    const leasesFourMonthsHeading = document.getElementById('leases-four-months-heading'); // Ensure the ID is in your HTML
+    const leasesNextMonthHeading = document.getElementById('leases-next-month-heading'); // Ensure the ID is in your HTML
 
-    <!-- Filter and search inputs -->
-    <div class="container mt-3">
-        <div class="row">
-            <div class="col-md-4" style="display:none;">
-                <label for="itemsPerPage">Items per page:</label>
-                <select id="itemsPerPage" class="form-control">
-                    <option value="">All</option>
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="300">300</option>
-                </select>
-            </div>
-            <div class="col-md-4">
+    // Get the first of next month
+    const today = new Date();
+    const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
 
-                <label for="filterMonth">Filter by Month:</label>
-                <select id="filterMonth" class="form-control">
-                    <option value="">All</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>->
-                </select>
-            </div>
-            <div class="col-md-4">
+    let fourMonthsSummaryUpdated = false;
+    let nextMonthSummaryUpdated = false;
 
-                <label for="filterHomeowner">Filter by Homeowner:</label>
-                <input type="text" id="filterHomeowner" class="form-control" placeholder="Enter Homeowner">
-            </div>
-            <div class="col-md-4">
+    leasesData.forEach(lease => {
+        // Calculate the months between the first of next month and the rentEscalationDate
+        const rentEscalationDate = new Date(lease.rentEscalationDate);
+        const monthDifference = rentEscalationDate.getMonth() - firstOfNextMonth.getMonth() 
+                                + (12 * (rentEscalationDate.getFullYear() - firstOfNextMonth.getFullYear()));
 
-                <label for="filterUnit">Filter by Unit:</label>
-                <input type="text" id="filterUnit" class="form-control" placeholder="Enter unit or property reference">
-            </div>
-            <!-- <button id="applyFiltersButton">Apply Filters</button> -->
-        </div>
-    </div>
+        // Update the headings if they have not been updated yet
+        if (monthDifference === 3 && !fourMonthsSummaryUpdated) {
+            leasesFourMonthsHeading.textContent = `Leases ending 1st ${monthNames[rentEscalationDate.getMonth()]}`;
+            fourMonthsSummaryUpdated = true;
+        } else if (monthDifference === 1 && !nextMonthSummaryUpdated) {
+            leasesNextMonthHeading.textContent = `Leases ending 1st ${monthNames[rentEscalationDate.getMonth()]}`;
+            nextMonthSummaryUpdated = true;
+        }
 
-    <!-- Container to display table data -->
-    <div id="functionData" class="container mt-4"></div>
+        // Add rows to the all leases table
+        const row = leasesTableBody.insertRow();
+        row.innerHTML = `
+            <td>${lease.unitNo}</td>
+            <td>${lease.tenantName}</td>
+            <td>${lease.tenantIdNo}</td>
+            <td>${lease.tenantEmail}</td>
+            <td>${lease.tenantMobileNo}</td>
+            <td>${lease.currentRent}</td>
+            <td>${lease.deposit}</td>
+            <td>${lease.statusDate.split('T')[0]}</td>
+            <td>${lease.firstMonthDate.split('T')[0]}</td>
+            <td>${lease.lastPaymentReceived.split('T')[0]}</td>
+            <td>${lease.rentEscalationDate.split('T')[0]}</td>
+        `;
 
-    <div id="notification" style="display: none;">
-        <div id="notification-content">
-          Function is running...
-        </div>
-      </div>      
+        // Populate summaries
+        if (monthDifference === 3) {
+            // Populate the four-month summary
+            const listItem = document.createElement('li');
+            listItem.textContent = `Unit ${lease.unitNo} - ${lease.tenantName}`;
+            leasesFourMonthsSummary.appendChild(listItem);
+        } else if (monthDifference === 1) {
+            // Populate the next month summary
+            const listItem = document.createElement('li');
+            listItem.textContent = `Unit ${lease.unitNo} - ${lease.tenantName}`;
+            leasesNextMonthSummary.appendChild(listItem);
+        }
+    });
+}
 
-    <!-- Comment Modal -->
-    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="commentModalLabel">Add Comment</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Add your comment input field here -->
-                    <div class="form-group">
-                        <label for="comment">Comment:</label>
-                        <textarea class="form-control" id="comment" rows="4"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-secondary" id="saveCommentButton">Save Comment</button>
-                </div>
-            </div>
-        </div>
-    </div>
+window.onload = populateLeasesData;
 
-    <!-- JavaScript functions -->
+    
+        // Call the populateLeasesData function when the window loads
+        window.onload = populateLeasesData;
+    </script>
+    
+    <!-- JavaScript functions
     <script type="module" src="main.js"></script>
     <script type="module">
         import { fetchData, fetchDepositData } from './dataFetcher.js';
@@ -512,4 +554,4 @@
 
     </script>
 </body>
-</html>
+</html> -->

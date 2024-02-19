@@ -36,6 +36,12 @@
     <p id="uploadPropertyStatusMessage"></p>
     <div>Last Updated: <span id="lastUpdatedProperties">Loading...</span></div>
 
+    <h1>Upload Excel File for Leases</h1>
+    <input type="file" id="leasesFileInput">
+    <button id="uploadLeasesButton">Upload Leases</button>
+    <p id="uploadLeasesStatusMessage"></p>
+    <div>Last Updated: <span id="lastUpdatedLeases">Loading...</span></div>
+
     <h1>Upload Indlu Payout List</h1>
     <input type="file" id="indluPayoutFileInput">
     <button id="uploadIndluPayoutButton">Upload Indlu Payout</button>
@@ -146,6 +152,10 @@
         const uploadPropertyButton = document.getElementById('uploadPropertyButton');
         const uploadPropertyStatusMessage = document.getElementById('uploadPropertyStatusMessage');
 
+        const leasesFileInput = document.getElementById('leasesFileInput');
+        const uploadLeasesButton = document.getElementById('uploadLeasesButton');
+        const uploadLeasesStatusMessage = document.getElementById('uploadLeasesStatusMessage');
+
         const indluPayoutFileInput = document.getElementById('indluPayoutFileInput');
         const uploadIndluPayoutButton = document.getElementById('uploadIndluPayoutButton');
         const uploadIndluPayoutMessage = document.getElementById('uploadIndluPayoutMessage');
@@ -236,6 +246,47 @@
                 uploadPropertyStatusMessage.textContent = 'Please select a property file to upload.';
             }
         });
+
+
+        uploadLeasesButton.addEventListener('click', async () => {
+            const leasesFile = leasesFileInput.files[0];
+
+            if (leasesFile) {
+                // Display a loading message
+                uploadLeasesStatusMessage.textContent = 'Uploading...';
+
+                // Create a FormData object and append the transaction file
+                const formData = new FormData();
+                formData.append('excelFile', leasesFile);
+
+                try {
+                    // Send a POST request to your backend with the transaction file data
+                    const response = await fetch('https://python38-functions.azurewebsites.net/api/importLeasing?code=ol-9jV6Uyogv6a6o3n-ZtCd8FSvSrTTXZitNunl1mWz_AzFujr81BQ==', {
+                        method: 'POST',
+                        body: formData,
+                        mode: 'cors',
+                    });
+
+                    if (response.ok) {
+                        // Display a success message
+                        uploadLeasesStatusMessage.textContent = 'Upload successful.';
+                        updateLastUpdatedLabel('lastUpdatedLeases', 'leases_last_updated');
+                        updateMetadataLabels();
+                    } else {
+                        // Display an error message
+                        uploadTransactionStatusMessage.textContent = 'Upload failed. Please try again.';
+                    }
+                } catch (error) {
+                    console.error('Error uploading transaction file:', error);
+                    // Display an error message
+                    uploadTransactionStatusMessage.textContent = 'An error occurred. Please try again later.';
+                }
+            } else {
+                // Display a message if no transaction file is selected
+                uploadTransactionStatusMessage.textContent = 'Please select a transaction file to upload.';
+            }
+        });
+
 
         uploadIndluPayoutButton.addEventListener('click', async () => {
             const indluPayoutFile = indluPayoutFileInput.files[0];
@@ -603,6 +654,7 @@
                 // Adjust according to your actual response structure.
                 document.getElementById('lastUpdatedTransactions').textContent = metadata['last_updated_transactions'] || 'N/A';
                 document.getElementById('lastUpdatedProperties').textContent = metadata['last_updated_properties'] || 'N/A';
+                document.getElementById('lastUpdatedLeases').textContent = metadata['leases_last_updated'] || 'N/A';
                 document.getElementById('lastReconciledTransactions').textContent = metadata['last_reconciled_transactions'] || 'N/A';
                 document.getElementById('lastGeneratedInvoices').textContent = metadata['last_generated_invoices'] || 'N/A';
                 //... Add other metadata updates here
