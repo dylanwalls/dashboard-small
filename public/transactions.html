@@ -16,13 +16,20 @@
 <body>
     <div class="container mt-4 ml-0"> <!-- Added 'ml-0' class for left alignment -->
         <h2>Transactions</h2>
+        <div id="homeownerDetails" class="mt-3">
+            <p><strong>Homeowner Name:</strong> <span id="homeownerName"></span></p>
+            <p><strong>Phone Number:</strong> <span id="homeownerPhoneNumber"></span></p>
+        </div>
         <a href="statements.html" class="btn btn-primary">Back</a> <!-- Back button -->
         <div id="transactionsData" class="mt-4">
             <!-- Transactions will be loaded here -->
+        </div>
+        <div class="d-flex flex-row align-items-center mt-3"> <!-- Flexbox container for button and message -->
+            <button id="sendStatementMessageBtn" class="btn btn-success">Send Statement Message</button> <!-- Button for sending statement message -->
+            <div id="responseMessage" class="ml-3"></div> <!-- Response message will be displayed here -->
         </div>
     </div>
 
     <script src="transactions.js"></script>
 </body>
 </html>
-

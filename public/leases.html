@@ -56,16 +56,31 @@
     <!-- Main content area for the Leases page -->
     <div class="container mt-4">
         
-        <!-- Section for leases ending soon -->
-        <div class="row">
-            <div class="col-md-6">
-                <h2 id="leases-four-months-heading">Leases ending in 4 months</h2>
-                <div id="leases-four-months-summary"></div>
-            </div>
-            <div class="col-md-6">
-                <h2 id="leases-next-month-heading">Leases ending next month</h2>
-                <div id="leases-next-month-summary"></div>
-            </div>            
+        <div class="mt-4" id="leases-ending-soon">
+            <h2>Leases Ending Soon</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Unit No</th>
+                        <th>Tenant Name</th>
+                        <th>Tenant ID Number</th>
+                        <th>Tenant Email</th>
+                        <th>Tenant Phone</th>
+                        <th>Current Rent</th>
+                        <th>Deposit</th>
+                        <th>Status Date</th>
+                        <th>Lease Start</th>
+                        <th>Last Payment Received</th>
+                        <th>Rent Escalation Date</th>
+                        <th>Escalation Status</th>
+                        <th>Tenant Decision</th>
+                        <th>New Rent Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="leases-ending-soon-body">
+                    <!-- Table body to be populated with lease data -->
+                </tbody>
+            </table>
         </div>
         
         <!-- Section for all leases -->
@@ -86,6 +101,8 @@
                         <th>Lease Start</th>
                         <th>Last Payment Received</th>
                         <th>Rent Escalation Date</th>
+                        <th>Escalation Status</th>
+                        <th>Tenant Decision</th>
 
                     </tr>
                 </thead>
@@ -97,96 +114,189 @@
     </div>
     
     <script>
-        // Placeholder function to simulate fetching data from your backend
         async function fetchLeasesData() {
-            const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchLeases?code=Yfl0IjcwSQWSx6a8N0bYfkqpr2zeBOMGunnXGLyVdOKCAzFu69K0xQ=='; // Replace with your API endpoint for leases
+            const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchLeases?code=Yfl0IjcwSQWSx6a8N0bYfkqpr2zeBOMGunnXGLyVdOKCAzFu69K0xQ==';
             try {
                 const response = await fetch(apiUrl, {
-                    method: 'GET', // or 'POST', depending on your API requirement
+                    method: 'GET',
                 });
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return await response.json(); // This will return the data to the caller
+                return await response.json();
             } catch (e) {
                 console.error('There was a problem fetching the lease data.', e);
             }
         }
-    
+        
         async function populateLeasesData() {
-    const leasesData = await fetchLeasesData(); // This will wait for the data to be fetched
-    if (!leasesData) {
-        // Handle the case where no data is returned
-        console.error('No lease data was returned from the API.');
-        return;
-    }
-    const leasesTableBody = document.getElementById('leases-table-body');
-    const leasesFourMonthsSummary = document.getElementById('leases-four-months-summary');
-    const leasesNextMonthSummary = document.getElementById('leases-next-month-summary');
-    const leasesFourMonthsHeading = document.getElementById('leases-four-months-heading'); // Ensure the ID is in your HTML
-    const leasesNextMonthHeading = document.getElementById('leases-next-month-heading'); // Ensure the ID is in your HTML
+            const leasesData = await fetchLeasesData();
+            if (!leasesData) {
+                console.error('No lease data was returned from the API.');
+                return;
+            }
 
-    // Get the first of next month
-    const today = new Date();
-    const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"];
+            // Populate the full list of leases
+            const allLeasesTableBody = document.getElementById('leases-table-body');
+            populateTable(allLeasesTableBody, leasesData);
 
-    let fourMonthsSummaryUpdated = false;
-    let nextMonthSummaryUpdated = false;
+            // Calculate the start of next month and then add three months to find the cutoff date
+            const today = new Date();
+            const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            const threeMonthsFromNextMonth = new Date(startOfNextMonth.setMonth(startOfNextMonth.getMonth() + 3));
 
-    leasesData.forEach(lease => {
-        // Calculate the months between the first of next month and the rentEscalationDate
-        const rentEscalationDate = new Date(lease.rentEscalationDate);
-        const monthDifference = rentEscalationDate.getMonth() - firstOfNextMonth.getMonth() 
-                                + (12 * (rentEscalationDate.getFullYear() - firstOfNextMonth.getFullYear()));
+            // Filter leases to find those ending before or on the cutoff date
+            const leasesEndingSoonData = leasesData.filter(lease => {
+                const rentEscalationDate = new Date(lease.rentEscalationDate);
+                return rentEscalationDate <= threeMonthsFromNextMonth;
+            });
 
-        // Update the headings if they have not been updated yet
-        if (monthDifference === 3 && !fourMonthsSummaryUpdated) {
-            leasesFourMonthsHeading.textContent = `Leases ending 1st ${monthNames[rentEscalationDate.getMonth()]}`;
-            fourMonthsSummaryUpdated = true;
-        } else if (monthDifference === 1 && !nextMonthSummaryUpdated) {
-            leasesNextMonthHeading.textContent = `Leases ending 1st ${monthNames[rentEscalationDate.getMonth()]}`;
-            nextMonthSummaryUpdated = true;
+            // Populate the "Leases Ending Soon" table
+            const leasesEndingSoonTableBody = document.getElementById('leases-ending-soon-body');
+            populateTable(leasesEndingSoonTableBody, leasesEndingSoonData);
+        }
+        
+        function populateTable(tableBody, leases) {
+            tableBody.innerHTML = ''; // Clear existing rows
+            leases.forEach((lease, index) => {
+                const row = tableBody.insertRow();
+                const leaseDataStr = encodeURIComponent(JSON.stringify(lease)); // Encode the lease object
+                row.innerHTML = `
+                    <td>${lease.unitNo}</td>
+                    <td>${lease.tenantName}</td>
+                    <td>${lease.tenantIdNo}</td>
+                    <td>${lease.tenantEmail}</td>
+                    <td>${lease.tenantMobileNo}</td>
+                    <td>${lease.currentRent}</td>
+                    <td>${lease.deposit}</td>
+                    <td>${new Date(lease.statusDate).toLocaleDateString()}</td>
+                    <td>${new Date(lease.firstMonthDate).toLocaleDateString()}</td>
+                    <td>${new Date(lease.lastPaymentReceived).toLocaleDateString()}</td>
+                    <td>${new Date(lease.rentEscalationDate).toLocaleDateString()}</td>
+                    <td>${lease.escalationStatus}</td>
+                    <td>${lease.tenantResponse}</td>
+                    <td><input type="number" id="newRentAmount-${index}" placeholder="New Rent"></td>
+                    <td><button onclick='sendNotice(${index}, "${leaseDataStr}")'>Send Notice</button></td>
+                `;
+            });
         }
 
-        // Add rows to the all leases table
-        const row = leasesTableBody.insertRow();
-        row.innerHTML = `
-            <td>${lease.unitNo}</td>
-            <td>${lease.tenantName}</td>
-            <td>${lease.tenantIdNo}</td>
-            <td>${lease.tenantEmail}</td>
-            <td>${lease.tenantMobileNo}</td>
-            <td>${lease.currentRent}</td>
-            <td>${lease.deposit}</td>
-            <td>${lease.statusDate.split('T')[0]}</td>
-            <td>${lease.firstMonthDate.split('T')[0]}</td>
-            <td>${lease.lastPaymentReceived.split('T')[0]}</td>
-            <td>${lease.rentEscalationDate.split('T')[0]}</td>
-        `;
 
-        // Populate summaries
-        if (monthDifference === 3) {
-            // Populate the four-month summary
-            const listItem = document.createElement('li');
-            listItem.textContent = `Unit ${lease.unitNo} - ${lease.tenantName}`;
-            leasesFourMonthsSummary.appendChild(listItem);
-        } else if (monthDifference === 1) {
-            // Populate the next month summary
-            const listItem = document.createElement('li');
-            listItem.textContent = `Unit ${lease.unitNo} - ${lease.tenantName}`;
-            leasesNextMonthSummary.appendChild(listItem);
+        async function sendNotice(index, leaseStr) {
+            const leaseObj = JSON.parse(decodeURIComponent(leaseStr));
+            const newRentAmount = document.getElementById(`newRentAmount-${index}`).value;
+            if (!newRentAmount) {
+                alert("Please enter the new rent amount.");
+                return;
+            }
+            const rentEscalationDateString = leaseObj.rentEscalationDate.split("T")[0];
+            // Construct the payload as before
+            const payload = {
+                "recipients": [
+                    {
+                        "phone": leaseObj.tenantMobileNo,
+                        "hsm_id": "158515",
+                        "parameters": [
+                            {
+                                "key": "{{1}}",
+                                "value": leaseObj.tenantName
+                            },
+                            {
+                                "key": "{{2}}",
+                                "value": leaseObj.unitNo
+                            },
+                            {
+                                "key": "{{3}}",
+                                "value": rentEscalationDateString
+                            },
+                            {
+                                "key": "{{1}}",
+                                "value": newRentAmount
+                            }
+                        ]
+                    }
+                ]
+            }
+
+            const azureFunctionUrl = "https://dashboard-function-app-1.azurewebsites.net/api/sendWhatsappTemplate?code=HMT7Whg8vQmL9C_lOTjFZ0ILLhoLZORZXAd_myIXRdv1AzFuq4O4FQ=="; // Replace with your Azure function URL
+
+            try {
+                const response = await fetch(azureFunctionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (response.ok) {
+                    // WhatsApp message sent successfully, now call the server to send an email
+                    const emailPayload = {
+                        leaseId: leaseObj.leaseId,
+                        newRentAmount: newRentAmount,
+                        tenantEmail: leaseObj.tenantEmail,
+                        tenantName: leaseObj.tenantName,
+                        unitNo: leaseObj.unitNo,
+                        rentEscalationDate: leaseObj.rentEscalationDate
+                    };
+                    await sendRentEscalationEmail(emailPayload); // This function would be an AJAX call to your server endpoint
+                    alert("Notice sent successfully.");
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            } catch (e) {
+                console.error('There was a problem sending the lease notice.', e);
+                alert("Failed to send notice.");
+            }
         }
-    });
-}
 
-window.onload = populateLeasesData;
 
-    
-        // Call the populateLeasesData function when the window loads
+        // Example AJAX call to your server endpoint to send the rent escalation email
+        async function sendRentEscalationEmail(emailPayload) {
+            const serverEndpointUrl = "https://your-server-endpoint.com/sendRentEscalationEmail"; // Replace with your actual server endpoint
+            try {
+                const response = await fetch(serverEndpointUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(emailPayload),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                console.log("Email sent successfully.");
+            } catch (e) {
+                console.error('There was a problem sending the rent escalation email.', e);
+            }
+        }
+
+
+        async function updateLeaseStatus(leaseId, leaseStatus) {
+            const updateUrl = "https://dashboard-function-app-1.azurewebsites.net/api/updateLeaseStatus?code=Yyoj_Iqvpucdn4Mk3NoH3TvOmlfH4f3L9pzLtlwMi-cgAzFuQZGd4g=="; // Your Azure Function URL for updating lease status
+            try {
+                const response = await fetch(updateUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ leaseId, leaseStatus }),
+                });
+
+                if (response.ok) {
+                    console.log("Lease status updated successfully.");
+                } else {
+                    throw new Error(`Failed to update lease status: ${response.statusText}`);
+                }
+            } catch (e) {
+                console.error('There was a problem updating the lease status.', e);
+            }
+        }
+        
         window.onload = populateLeasesData;
     </script>
+        
     
     <!-- JavaScript functions
     <script type="module" src="main.js"></script>

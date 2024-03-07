@@ -72,6 +72,11 @@ function renderTable(data, commentModal, dataType) {
                             cell.classList.add('zero-amount');
                         }
 
+                        // Check if Amount Paid is less than Amount Due and the current month is greater than or equal to the Month value
+                        else if (!isNaN(amount_due) && !isNaN(amount_paid) && amount_paid > amount_due) {
+                            cell.classList.add('greater-amount');
+                        }
+
 
                     } else if (key === 'date_paid' && rowData[key] !== null) {
                         const dateParts = rowData[key].split('T');

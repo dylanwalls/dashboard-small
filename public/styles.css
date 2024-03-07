@@ -95,6 +95,11 @@ body {
   background-color: lightcoral; /* Adjust the background color to your preference */
 }
 
+/* Apply orange background to rows where Amount Paid is greater than Amount Due in the Rent Roll table */
+.rent-roll-table td.greater-amount {
+  background-color: rgb(231, 240, 128); /* Adjust the background color to your preference */
+}
+
 .table td .btn {
   margin: 0;
   padding: 5px 10px; /* Adjust as needed */
