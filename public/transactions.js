@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    let rowDataArray = [];
     // Function to fetch homeowner details
     function fetchHomeownerDetails(propertyId) {
         const apiUrl = "https://dashboard-function-app-1.azurewebsites.net/api/fetchProperty?code=l6jTB7k7HUiJqzWolCR52jucnunMJCl2gpao3_Ulyj6ZAzFuPhq5bw==";
@@ -36,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Function to fetch and display transactions
-    let rowDataArray = [];
+
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; // Define monthNames outside the loop
 
     function fetchAndDisplayTransactions(propertyId) {
@@ -130,11 +131,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         if (amountPaid > 0) {
                             // Construct the row data and push it to rowDataArray
                             rowDataArray.push({
+                                invoiceId: txn['invoice_id'],
                                 unitRef: txn['unit_ref'],
                                 month: monthNames[monthIndex],
                                 amountPaid: amountPaid.toFixed(2),
                                 homeownerAmount: homeownerAmount.toFixed(2)
                             });
+                            console.log('Row data array:', rowDataArray);
                         }
                         
                     });
@@ -227,6 +230,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+    function markInvoicesAsPaid() {
+        // Assuming `rowDataArray` or similar array stores your invoice IDs or contains data from which invoice IDs can be extracted
+        const invoiceIds = rowDataArray.map(row => row.invoiceId); // Adapt this line based on your actual data structure
+        console.log('InvoiceIds:', invoiceIds);
+        fetch('https://dashboard-function-app-1.azurewebsites.net/api/updateInvoices?code=u8KzYRGJ46SP549WI6mJ5Zl56KSOYVf5JoZ0lpQWyHWaAzFuTXm21Q==', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ invoiceIds: invoiceIds })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to update invoices');
+            return response.json();
+        })
+        .then(data => {
+            console.log('Invoices updated successfully:', data);
+            // Optionally refresh the page or update the UI to reflect the changes
+        })
+        .catch(error => {
+            console.error('Error updating invoices:', error);
+        });
+    }
+    
+
 
     // Parse the URL query parameters to get the propertyId
     const urlParams = new URLSearchParams(window.location.search);
@@ -239,4 +267,5 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     // Add event listener for the button to send statement message
     document.getElementById('sendStatementMessageBtn').addEventListener('click', sendStatementMessage);
+    document.getElementById('markAsPaidBtn').addEventListener('click', markInvoicesAsPaid);
 });
