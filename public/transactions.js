@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('transactionsData').innerHTML = `<p>Error fetching transactions: ${error.message}</p>`;
+                document.getElementById('transactionsData').innerHTML = `<p>No unpaid transactions found.</p>`;
             });
     }
 
