@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <title>Citiq</title>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <!-- Title on the left -->
+        <a class="navbar-brand" href="#">Bitprop</a>
+
+        <!-- Navbar content -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item align-self-center">
+                    <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="board" class="btn btn-primary custom-btn"><a href="dashboard.html" class="btn btn-primary custom-btn" style="color: #fff;">Dashboard</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="properties" class="btn btn-primary custom-btn"><a href="properties.html" class="btn btn-primary custom-btn" style="color: #fff;">Properties</a></button>
+                </li>                
+                <li class="nav-item align-self-center">
+                    <button id="statements" class="btn btn-primary custom-btn"><a href="statements.html" class="btn btn-primary custom-btn" style="color: #fff;">Statements</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="statements" class="btn btn-primary custom-btn"><a href="tenants.html" class="btn btn-primary custom-btn" style="color: #fff;">Tenant Management</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="leases" class="btn btn-primary custom-btn"><a href="leases.html" class="btn btn-primary custom-btn" style="color: #fff;">Leases</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="citiq" class="btn btn-primary custom-btn"><a href="citiq.html" class="btn btn-primary custom-btn" style="color: #fff;">Citiq Payouts</a></button>
+                </li>
+                <li class="nav-item align-self-center">
+                    <button id="uploads" class="btn btn-primary custom-btn"><a href="upload_transactions.html" class="btn btn-primary custom-btn" style="color: #fff;">Uploads</a></button>
+                </li>
+                <li class="nav-item dropdown align-self-center">
+                    <button class="btn btn-primary dropdown-toggle custom-btn" type="button" id="functionsMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Downloads
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="functionsMenuButton">
+                        <button id="rentRollDownload" class="dropdown-item">Download Rent Roll</button>
+                        <button id="depositDownload" class="dropdown-item">Download Deposit Schedule</button>
+                        <button id="depositUpdate" class="dropdown-item">Update Deposit Interest and Status</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label for="monthFilter">Filter by Month and Year:</label>
+                <select id="monthFilter" class="form-control">
+                    <!-- Month options will be populated dynamically -->
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label for="propertyFilter">Filter by Property:</label>
+                <select id="propertyFilter" class="form-control">
+                    <!-- Property options will be populated dynamically -->
+                </select>
+            </div>
+        </div>
+        
+        <div id="data-section">
+            <h2>Citiq Payouts</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Month</th>
+                        <th>Electricity</th>
+                        <th>Water</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table-body">
+                    <!-- Table body will be populated with data -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        async function fetchData() {
+            const apiUrl = 'https://dashboard-function-app-1.azurewebsites.net/api/fetchCitiqPayouts?code=ZG7w3MwXBNOxFJuGrSbwuqAgXfmeXG-ruAvg-OA6KdizAzFuHouqZg=='; // Update with your actual API URL
+            try {
+                const response = await fetch(apiUrl, { method: 'GET' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (e) {
+                console.error('There was a problem fetching the data.', e);
+            }
+        }
+
+        function formatMonthYear(monthYear) {
+            const year = monthYear.slice(-4);
+            const month = monthYear.length === 5 ? `0${monthYear.slice(0, 1)}` : monthYear.slice(0, 2);
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNames[parseInt(month, 10) - 1];
+            return `${monthName} ${year}`;
+        }
+        
+        async function populateData() {
+            const data = await fetchData();
+            if (!data) {
+                console.error('No data was returned from the API.');
+                return;
+            }
+
+            const monthFilter = document.getElementById('monthFilter');
+            const propertyFilter = document.getElementById('propertyFilter');
+
+            // Initially add "All" options
+            monthFilter.add(new Option("All", "all"));
+            propertyFilter.add(new Option("All", "all", true, true));
+
+            // Process monthYear values for uniqueness and sorting
+            const uniqueMonthYears = [...new Set(data.map(item => item.Month))];
+            const formattedMonths = uniqueMonthYears.map(monthYear => ({
+                original: monthYear,
+                formatted: formatMonthYear(monthYear)
+            }));
+
+            // Sort by original monthYear values (which are inherently sortable)
+            formattedMonths.sort((a, b) => a.original.localeCompare(b.original));
+
+            // Populate the month filter with unique, sorted, formatted month-year strings
+            formattedMonths.forEach(({ original, formatted }) => {
+                const option = new Option(formatted, original);
+                monthFilter.add(option);
+            });
+
+            // Set the most recent month as selected by default
+            const mostRecentMonthYear = formattedMonths[formattedMonths.length - 1].original;
+            monthFilter.value = mostRecentMonthYear;
+
+            // Populate the property filter with unique properties
+            const properties = [...new Set(data.map(item => item.Property))];
+            properties.sort().forEach(property => {
+                propertyFilter.add(new Option(property, property));
+            });
+
+            // Function to filter and display data based on selected filters
+            function filterAndDisplayData() {
+                const selectedMonthYear = monthFilter.value;
+                const selectedProperty = propertyFilter.value;
+                const filteredData = data.filter(item =>
+                    (selectedMonthYear === "all" || item.Month === selectedMonthYear) &&
+                    (selectedProperty === "all" || item.Property === selectedProperty)
+                );
+                populateTable(document.getElementById('data-table-body'), filteredData);
+            }
+
+            // Attach event listeners for filter changes
+            monthFilter.addEventListener('change', filterAndDisplayData);
+            propertyFilter.addEventListener('change', filterAndDisplayData);
+
+            // Initially display data based on the most recent month
+            filterAndDisplayData();
+        }
+
+        
+        function populateTable(tableBody, data) {
+            tableBody.innerHTML = ''; // Clear existing rows
+            data.forEach(item => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${item.Property}</td>
+                    <td>${item.Month}</td>
+                    <td>${parseFloat(item.Electricity).toFixed(2)}</td>
+                    <td>${parseFloat(item.Water).toFixed(2)}</td>
+                `;
+            });
+        }
+        
+        window.onload = populateData;
+    </script>
+</body>
+</html>
