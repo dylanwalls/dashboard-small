@@ -132,3 +132,35 @@ body {
 .total-row td {
   font-weight: bold;
 }
+
+/* Color-coding for rows based on conditions */
+.red-row {
+  background-color: #ffcccc; /* Light red for escalation date < 3 months and status null */
+}
+
+.yellow-row {
+  background-color: #ffffcc; /* Light yellow for < 3 months, notice sent, and tenant decision null */
+}
+
+.green-row {
+  background-color: #ccffcc; /* Light green for < 3 months and tenant decision not null */
+}
+
+.detailRow td {
+  background-color: #f0f0f0; /* Light grey background */
+  padding: 10px; /* Add some padding */
+  border-top: 1px solid #ddd; /* Light border on top */
+}
+
+/* Deposit Status Colors */
+.deposit-paid {
+  color: green;
+}
+
+.deposit-overdue {
+  color: red;
+}
+
+.deposit-overpaid {
+  color: orange;
+}
