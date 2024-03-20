@@ -269,6 +269,7 @@
 
                     if (response.ok) {
                         // Display a success message
+                        console.log(response);
                         uploadLeasesStatusMessage.textContent = 'Upload successful.';
                         updateLastUpdatedLabel('lastUpdatedLeases', 'leases_last_updated');
                         updateMetadataLabels();

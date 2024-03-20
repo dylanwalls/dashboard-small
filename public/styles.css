@@ -164,3 +164,24 @@ body {
 .deposit-overpaid {
   color: orange;
 }
+
+#pdf-container canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Optional: adds a subtle shadow for depth */
+}
+
+@media (max-width: 768px) {
+  .btn.custom-btn {
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #pdf-container-id { /* Replace with your actual container ID */
+      flex-direction: column;
+  }
+}

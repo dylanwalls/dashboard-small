@@ -160,6 +160,7 @@ function getMessageTypeIdForLease(leaseObj) {
 }
 
 let templateNotice;
+let selectedTemplateKey;
 
 function updateMessageBody() {
     const customMessage = $('#customMessage').val().trim();
@@ -259,8 +260,9 @@ function finaliseAndSend() {
     const leaseStr = $('#messageModal').data('leaseStr');
     const customMessage = $('#customMessage').val().trim();
     const selectedTemplateBody = $('#messageTemplateDropdown').find(':selected').data('body');
+    console.log('selected template body:', selectedTemplateKey);
     const messageToSend = customMessage.length > 0 ? customMessage : selectedTemplateBody;
-
+    // if (selec)
     console.log('Message to send:', messageToSend);
     $('#messageModal').modal('hide');
     sendMessage(index, leaseStr, 'Notice', messageToSend); // Assuming you adjust sendMessage to accept additional parameters
