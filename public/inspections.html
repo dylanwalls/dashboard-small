@@ -20,11 +20,11 @@
     <title>Inspections</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <!-- Title on the left -->
-        <a class="navbar-brand" href="#">Bitprop</a>
-
-        <!-- Navbar content -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item align-self-center">
@@ -68,21 +68,23 @@
         </div>
     </nav>
     <div class="container mt-4" id="all-inspections">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>id</th>
-                    <th>lease_id</th>
-                    <th>escalationDate</th>
-                    <th>completed</th>
-                    <th>Prefilled Inspection Form</th>
-                    <th>Prefilled Quote Form</th>
-                </tr>
-            </thead>
-            <tbody id="inspections-table-body">
-                <!-- Table body to be dynamically populated -->
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>lease_id</th>
+                        <th>escalationDate</th>
+                        <th>completed</th>
+                        <th>Prefilled Inspection Form</th>
+                        <th>Prefilled Quote Form</th>
+                    </tr>
+                </thead>
+                <tbody id="inspections-table-body">
+                    <!-- Table body to be dynamically populated -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script src="/inspectionsDataHandling.js"></script>
