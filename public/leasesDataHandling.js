@@ -15,25 +15,49 @@ async function fetchLeasesData() {
 
 async function populateLeasesData() {
     const leasesData = await fetchLeasesData();
-    if (!leasesData) {
-        console.error('No lease data was returned from the API.');
-        return;
+    console.log('Fetched leases data:', leasesData); // Log initial data for diagnostic purposes
+
+    if (leasesData && leasesData.length > 0) {
+        const leasesWithValidTimestamps = leasesData.filter(lease => lease.importTimestamp !== null);
+        console.log('Leases with valid timestamps:', leasesWithValidTimestamps.length); // Verify filtered data
+
+        if (leasesWithValidTimestamps.length === 0) {
+            console.error('No leases with valid importTimestamps found.');
+            return;
+        }
+
+        // Ensure initialization of the reduce function to avoid undefined values
+        const initialTimestamp = leasesWithValidTimestamps[0].importTimestamp;
+        const mostRecentTimestampStr = leasesWithValidTimestamps.reduce((max, lease) => {
+            const current = lease.importTimestamp;
+            console.log(`Comparing: ${current} with max: ${max}`); // Diagnostic log
+            return current > max ? current : max;
+        }, initialTimestamp);
+
+        console.log('Most recent timestamp string:', mostRecentTimestampStr);
+
+        const recentLeasesData = leasesData.filter(lease => lease.importTimestamp === mostRecentTimestampStr);
+        console.log('Recent leases data count:', recentLeasesData.length); // Confirm filtering result
+
+        // Populate the full list of recent leases
+        const allLeasesTableBody = document.getElementById('leases-table-body');
+        populateTable(allLeasesTableBody, recentLeasesData);
+
+        // Calculate the start of next month and then add three months to find the cutoff date
+        const today = new Date();
+        const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+        const threeMonthsFromNextMonth = new Date(startOfNextMonth.setMonth(startOfNextMonth.getMonth() + 3));
+
+        // Filter leases to find those ending before or on the cutoff date
+        const leasesEndingSoonData = leasesData.filter(lease => {
+            const rentEscalationDate = new Date(lease.rentEscalationDate);
+            return rentEscalationDate <= threeMonthsFromNextMonth;
+        });
+
+    } else {
+        console.error('No lease data was returned from the API or the data is empty.');
+        // Handle the empty data case appropriately here.
     }
-    console.log('Leases data:',leasesData);
-    // Populate the full list of leases
-    const allLeasesTableBody = document.getElementById('leases-table-body');
-    populateTable(allLeasesTableBody, leasesData);
-
-    // Calculate the start of next month and then add three months to find the cutoff date
-    const today = new Date();
-    const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-    const threeMonthsFromNextMonth = new Date(startOfNextMonth.setMonth(startOfNextMonth.getMonth() + 3));
-
-    // Filter leases to find those ending before or on the cutoff date
-    const leasesEndingSoonData = leasesData.filter(lease => {
-        const rentEscalationDate = new Date(lease.rentEscalationDate);
-        return rentEscalationDate <= threeMonthsFromNextMonth;
-    });
 
     // // Populate the "Leases Ending Soon" table
     // const leasesEndingSoonTableBody = document.getElementById('leases-ending-soon-body');

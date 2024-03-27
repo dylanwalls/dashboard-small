@@ -102,38 +102,48 @@ async function displayPDFsInColumns(inspectionPdfUrl, maintenancePdfUrls, contai
 
     // Function to load and display a single PDF
     async function loadAndDisplayPdf(pdfUrl, parentElement) {
-        const downloadLink = document.createElement('a');
-        downloadLink.href = pdfUrl;
-        downloadLink.textContent = 'Download PDF';
-        downloadLink.style.display = 'block';
-        downloadLink.style.marginBottom = '10px';
-        parentElement.appendChild(downloadLink);
-
-        const loadingTask = pdfjsLib.getDocument(pdfUrl);
-        try {
-            const pdf = await loadingTask.promise;
-            const scale = window.devicePixelRatio || 1;
-            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                const page = await pdf.getPage(pageNum);
-                const viewport = page.getViewport({ scale: scale });
-                const canvas = document.createElement('canvas');
-                canvas.style.display = 'block';
-                canvas.style.marginBottom = '10px';
-                parentElement.appendChild(canvas);
-
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                canvas.style.height = `${viewport.height / scale}px`;
-                canvas.style.width = `${viewport.width / scale}px`;
-
-                const renderContext = { canvasContext: context, viewport: viewport };
-                await page.render(renderContext).promise;
+        if (!pdfUrl) {
+            // If there is no PDF URL, display a message instead of trying to load a PDF
+            const noDataMessage = document.createElement('p');
+            noDataMessage.textContent = 'Inspection not completed yet.';
+            noDataMessage.style.marginBottom = '10px';
+            parentElement.appendChild(noDataMessage);
+        } else {
+            // If there is a PDF URL, proceed with creating the download link and loading the PDF
+            const downloadLink = document.createElement('a');
+            downloadLink.href = pdfUrl;
+            downloadLink.textContent = 'Download PDF';
+            downloadLink.style.display = 'block';
+            downloadLink.style.marginBottom = '10px';
+            parentElement.appendChild(downloadLink);
+    
+            // Continue with PDF loading and displaying logic here...
+            const loadingTask = pdfjsLib.getDocument(pdfUrl);
+            try {
+                const pdf = await loadingTask.promise;
+                const scale = window.devicePixelRatio || 1;
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: scale });
+                    const canvas = document.createElement('canvas');
+                    canvas.style.display = 'block';
+                    canvas.style.marginBottom = '10px';
+                    parentElement.appendChild(canvas);
+    
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.style.height = `${viewport.height / scale}px`;
+                    canvas.style.width = `${viewport.width / scale}px`;
+    
+                    const renderContext = { canvasContext: context, viewport: viewport };
+                    await page.render(renderContext).promise;
+                }
+            } catch (error) {
+                console.error('Error loading PDF:', error);
             }
-        } catch (error) {
-            console.error('Error loading PDF:', error);
         }
-    }
+    }    
 
     // Display the inspection form PDF in the left column
     await loadAndDisplayPdf(inspectionPdfUrl, inspectionColumn);
