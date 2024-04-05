@@ -109,14 +109,25 @@ function getStatusFromTypeId(messageTypeId) {
 
 const messageTemplates = {
     template1: {
-        name: "7 Day Notice",
+        name: "7 Day Notice test",
         text: "Template 1 Text newnew"
     },
     template2: {
-        name: "48 Hour Notice",
+        name: "48 Hour Notice test",
         text: "Template 2 Text"
     },
     template3: {
+        name: "End of month notice - disruptive behaviour",
+        text: `We confirm that in terms of Clause 7.13 you are not to do anything or permit anything to be done in, or on the Premises which may become a nuisance or annoyance to, or in any way interfere with the comfort of the occupants of neighbouring Premises. You have failed and/or neglected to adhere to this clause as you have  on numerous occasions caused chaos within the premises. Due to this, you are expected to vacate the premises on or before the last day of the month. Should you not vacate by then, you will be evicted and legal action will proceed. We trust that this will not be necessary as you will cooperate with this.`
+    },
+    template4: {
+
+        name: "7-day notice: non-payment",
+        text: `We refer to the Lease Agreement between Micro Property Development Fund Pty Ltd and yourself dated 07 November 2023. We confirm that in terms of Clause 4.1 of the Lease Agreement you are required to make monthly rental payments on or before the first of each month.
+        You have failed and/or neglected to make payment of the rent due. You are accordingly in breach of the Agreement. In terms of Clause 9.1 of the Agreement, you are given 7 days’ notice to rectify the breach of contract and make payment.
+        Should payment not be received within 7 days, the lease will be terminated and a notice to vacate the premises will be issued. We await urgent payment and trust that further legal action will not be necessary.`
+    },
+    template5: {
         name: "Custom",
         text: ""
     }
