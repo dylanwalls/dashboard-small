@@ -124,7 +124,7 @@ const messageTemplates = {
 
         name: "7-day notice: non-payment",
         text: `We refer to the Lease Agreement between Micro Property Development Fund Pty Ltd and yourself dated 07 November 2023. We confirm that in terms of Clause 4.1 of the Lease Agreement you are required to make monthly rental payments on or before the first of each month.
-        You have failed and/or neglected to make payment of the rent due. You are accordingly in breach of the Agreement. In terms of Clause 9.1 of the Agreement, you are given 7 days’ notice to rectify the breach of contract and make payment.
+        You have failed and/or neglected to make payment of the rent due. You are accordingly in breach of the Agreement. In terms of Clause 9.1 of the Agreement, you are given notice of 7 days to rectify the breach of contract and make payment.
         Should payment not be received within 7 days, the lease will be terminated and a notice to vacate the premises will be issued. We await urgent payment and trust that further legal action will not be necessary.`
     },
     template5: {
