@@ -373,7 +373,14 @@
                     // Create a new anchor element
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'batchPayoutTable.xlsx'; // Set the file name for download
+
+                    // Create a date string for appending
+                    const now = new Date();
+                    const dateString = now.toISOString().replace(/[\-:]/g, '').replace('T', '_').split('.')[0];
+
+                    // Set the file name for download, including the date and time for uniqueness
+                    a.download = `batchPayoutTable_${dateString}.xlsx`; // Set the file name for download
+
                     document.body.appendChild(a); // Append the anchor to the body
                     a.click(); // Programmatically click the anchor to trigger the download
                     

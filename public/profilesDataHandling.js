@@ -51,7 +51,7 @@ async function populateTable(tableBody, profiles) {
     tableBody.innerHTML = ''; // Clear existing rows
 
     const rentalUnitsData = await fetchRentalUnitsData();
-    const unoccupiedUnits = rentalUnitsData.filter(unit => !unit.occupied);
+    const unoccupiedUnits = rentalUnitsData.filter(unit => unit.occupied);
     const allAssociations = await fetchAssociationsForProfile();
 
     profiles.forEach((profile) => {
