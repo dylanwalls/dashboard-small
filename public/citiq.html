@@ -10,53 +10,7 @@
     <title>Citiq</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <!-- Title on the left -->
-        <a class="navbar-brand" href="#">Bitprop</a>
-
-        <!-- Navbar content -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item align-self-center">
-                    <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="board" class="btn btn-primary custom-btn"><a href="dashboard.html" class="btn btn-primary custom-btn" style="color: #fff;">Dashboard</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="properties" class="btn btn-primary custom-btn"><a href="properties.html" class="btn btn-primary custom-btn" style="color: #fff;">Properties</a></button>
-                </li>                
-                <li class="nav-item align-self-center">
-                    <button id="statements" class="btn btn-primary custom-btn"><a href="statements.html" class="btn btn-primary custom-btn" style="color: #fff;">Statements</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="statements" class="btn btn-primary custom-btn"><a href="tenants.html" class="btn btn-primary custom-btn" style="color: #fff;">Tenant Management</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="leases" class="btn btn-primary custom-btn"><a href="leases.html" class="btn btn-primary custom-btn" style="color: #fff;">Leases</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="citiq" class="btn btn-primary custom-btn"><a href="citiq.html" class="btn btn-primary custom-btn" style="color: #fff;">Citiq Payouts</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="uploads" class="btn btn-primary custom-btn"><a href="upload_transactions.html" class="btn btn-primary custom-btn" style="color: #fff;">Uploads</a></button>
-                </li>
-                <li class="nav-item dropdown align-self-center">
-                    <button class="btn btn-primary dropdown-toggle custom-btn" type="button" id="functionsMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Downloads
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="functionsMenuButton">
-                        <button id="rentRollDownload" class="dropdown-item">Download Rent Roll</button>
-                        <button id="depositDownload" class="dropdown-item">Download Deposit Schedule</button>
-                        <button id="depositUpdate" class="dropdown-item">Update Deposit Interest and Status</button>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
     
     <div class="container mt-4">
         <div class="row mb-4">
@@ -189,5 +143,6 @@
         
         window.onload = populateData;
     </script>
+    <script src="loadNavbar.js"></script>
 </body>
 </html>

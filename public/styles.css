@@ -50,6 +50,20 @@ body {
   border-color: #1c194f; /* Darken the border color on hover */
   color: #fff; /* Set text color for buttons on hover */
 }
+.btn-secondary a {
+  color: #000000 !important; /* Set text color for links within buttons to white */
+}
+.btn-secondary {
+  background-color: transparent !important; /* Set background to transparent */
+  border-color: #221e5a !important; /* Set border color for buttons */
+  color: #000000; /* Set text color for buttons */
+}
+
+.btn-secondary:hover {
+  background-color: transparent; /* Set background to transparent on hover */
+  border-color: #1c194f; /* Darken the border color on hover */
+  color: #000000; /* Set text color for buttons on hover */
+}
 
 /* Remove background color from buttons within the navbar-nav ml-auto class */
 .navbar-nav.ml-auto .btn-primary {

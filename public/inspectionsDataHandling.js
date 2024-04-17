@@ -207,17 +207,21 @@ function populateTable(tableBody, inspections) {
         row.innerHTML = `
             <td>${inspection.id}</td>
             <td>${inspection.lease_id}</td>
-            <td>${inspection.escalationDate}</td>
             <td>${inspection.completed}</td>
+            <td>${inspection.escalationDate}</td>   
+            <td>${inspection.unitNo}</td>
+            <td>${inspection.street}</td>
+            <td>${inspection.tenantName}</td>
+            <td>${inspection.tenantMobileNo}</td>
             <td></td>
             <td></td>
         `;
 
         // Insert the form button cell into the correct position in the row
-        const inspectionButtonCell = row.cells[4]; // Assuming form_url is meant to be in the 5th column
+        const inspectionButtonCell = row.cells[8]; // Assuming form_url is meant to be in the 5th column
         inspectionButtonCell.appendChild(inspectionFormButton);
 
-        const maintenanceButtonCell = row.cells[5]; // Assuming form_url is meant to be in the 5th column
+        const maintenanceButtonCell = row.cells[9]; // Assuming form_url is meant to be in the 5th column
         maintenanceButtonCell.appendChild(maintenanceFormButton);
 
         // // Determine the class based on the deposit status

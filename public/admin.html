@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <div id="navbar-placeholder"></div>
+    <div id="notification" style="display: none;">
+        <div id="notification-content">
+          Function is running...
+        </div>
+      </div> 
+    <div class="container mt-4">
+        <h1>Admin Dashboard</h1>
+        <div class="row">
+            <!-- Reports Column -->
+            <div class="col-md-3">
+                <h2>Reports</h2>
+                <div>
+                    <label>Month:</label>
+                    <input type="text" id="rentRollMonth" placeholder="Enter Month">
+                    <button id="downloadRentRoll">Download Rent Roll</button>
+                </div>
+                <div><button id="downloadDeposits">Download Deposit Schedule</button></div>
+                <div>
+                    <div><button id="downloadBatchPayoutTable">Download Batch Payout Table</button></div>
+                    <p id="downloadBatchPayoutMessage"></p>
+                </div>
+
+            </div>
+            <!-- Upload Data Column -->
+            <div class="col-md-3">
+                <h2>Upload Data</h2>
+                <div>
+                    <input type="file" id="transactionFileInput">
+                    <button id="uploadTransactionButton">Upload Transactions</button>
+                    <p id="uploadTransactionStatusMessage"></p>
+                    <div>Last Updated: <span id="lastUpdatedTransactions">Loading...</span></div>
+                </div>
+                <div>
+                    <input type="file" id="propertyFileInput">
+                    <button id="uploadPropertyButton">Upload Properties</button>
+                    <p id="uploadPropertyStatusMessage"></p>
+                    <div>Last Updated: <span id="lastUpdatedProperties">Loading...</span></div>
+                </div>
+                <div>
+                    <input type="file" id="leasesFileInput">
+                    <button id="uploadLeasesButton">Upload Leases</button>
+                    <p id="uploadLeasesStatusMessage"></p>
+                    <div>Last Updated: <span id="lastUpdatedLeases">Loading...</span></div>
+                </div>
+                <div><input type="file" id="indluPayoutFileInput">
+                    <button id="uploadIndluPayoutButton">Upload Indlu Payout</button>
+                    <button id="reconcileIndluPayoutButton">Reconcile Indlu Payout</button>
+                    <p id="uploadIndluPayoutMessage"></p>
+                    <div>Last Updated: <span id="lastUpdatedIndluPayout">Loading...</span></div>
+                </div>
+                <div><input type="file" id="citiqMetersInput">
+                    <button id="uploadCitiqMeters">Upload Citiq Meters</button>
+                    <p id="uploadMetersStatusMessage"></p>
+                    <div>Last Updated: <span id="lastUpdatedMeters">Loading...</span></div>
+                </div>
+                <div><div>
+                    <label for="monthDropdown">Select Month:</label>
+                    <select id="monthDropdown" name="monthDropdown">
+                        <!-- Property options will be populated here -->
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                        <!-- Add more properties as needed -->
+                    </select>
+                </div>
+                <div>
+                    <label for="yearInput">Year:</label>
+                    <input type="number" id="yearInput" name="year" min="1900" max="2100" required>
+                </div>
+                <!-- <div>
+                    <label for="property">Property Reference:</label>
+                    <input type="text" id="property" required>
+                </div> -->
+                <input type="file" id="multipleFileInput" accept=".csv" multiple>
+                <button id="uploadCitiqRemit">Upload Citiq Remits</button>
+                <button id="sendCitiqValuesButton">Send Citiq Values To All Homeowners</button>
+                <div>
+                    <!-- <label for="yearInput">Property Reference:</label>
+                    <input type="text" id="propertyRefInput" name="propertyRefInput">
+                    <button id="sendCitiqValuesButtonSpecific">Send Citiq Values To Specific Homeowner</button> -->
+                </div>
+                <p id="uploadMultipleStatusMessage"></p>
+            </div>
+            </div>
+            <!-- Functions Column -->
+            <div class="col-md-3">
+                <h2>Functions</h2>
+                <div>
+                    <button id="reconcileTransactions">Reconcile Transactions</button>
+                    <p id="reconciliationStatusMessage"></p>
+                </div>
+                <div>
+                    <button id="generateInvoices">Generate Invoices</button>
+                    <p id="generateInvoicesStatusMessage"></p>
+                </div>
+                <div><button id="updateDeposits">Update Deposit Interest and Status</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="loadNavbar.js"></script>
+    <script src="adminFunctions.js"></script>
+</body>
+</html>

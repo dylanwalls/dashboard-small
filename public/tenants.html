@@ -12,41 +12,7 @@
     <title>Bitprop Rent Roll</title>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <!-- Title on the left -->
-        <a class="navbar-brand" href="#">Bitprop</a>
-
-        <!-- Navbar content -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item align-self-center">
-                    <button id="rentRoll" class="btn btn-primary custom-btn">Rent Roll</button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="depositSchedule" class="btn btn-primary custom-btn">Deposits</button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="board" class="btn btn-primary custom-btn"><a href="dashboard.html" class="btn btn-primary custom-btn" style="color: #fff;">Dashboard</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="statements" class="btn btn-primary custom-btn"><a href="statements.html" class="btn btn-primary custom-btn" style="color: #fff;">Statements</a></button>
-                </li>
-                <li class="nav-item align-self-center">
-                    <button id="statements" class="btn btn-primary custom-btn"><a href="tenants.html" class="btn btn-primary custom-btn" style="color: #fff;">Tenant Management</a></button>
-                </li>
-                <li class="nav-item dropdown align-self-center">
-                    <button class="btn btn-primary dropdown-toggle custom-btn" type="button" id="functionsMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Functions
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="functionsMenuButton">
-                        <button id="rentRollDownload" class="dropdown-item">Rent Roll Download</button>
-                        <button id="depositDownload" class="dropdown-item">Download Deposit Schedule</button>
-                        <button id="depositUpdate" class="dropdown-item">Update Deposit Interest and Status</button>
-                    </div>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
     
     <!-- Last Updated Label -->
     <div class="container mt-2">
@@ -442,5 +408,6 @@
     });
 
     </script>
+    <script src="loadNavbar.js"></script>
 </body>
 </html>

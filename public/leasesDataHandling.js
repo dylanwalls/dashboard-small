@@ -139,6 +139,7 @@ function populateTable(tableBody, leases) {
                         <button onclick='sendMessage(${index}, "${leaseDataStr}", "3MonthNotice")'>Send 3-Month Lease Request</button>
                         <button onclick='sendMessage(${index}, "${leaseDataStr}", null)'>Send 1-Month Notification</button>
                         <button onclick='openMessageModal(${index}, "${leaseDataStr}")'>Send Notice</button>
+                        <button onclick='addInspectionManually(${index}, "${leaseDataStr}")'>Add Inspection Manually</button>
                     </div>
                     <div style="flex: 2; margin-left: 20px;">
                         <strong>Deposit Status:</strong> <span class="${depositStatusClass}"> ${lease.depositStatus}</span><br>
@@ -292,6 +293,39 @@ function finaliseAndSend() {
     sendMessage(index, leaseStr, 'Notice', messageToSend); // Assuming you adjust sendMessage to accept additional parameters
 }
 
+
+function addInspectionManually(index, leaseDataStr) {
+    const leaseObj = JSON.parse(decodeURIComponent(leaseDataStr));
+    // const prefilledInspectionForm = createJotFormUrl(leaseObj.tenantName, leaseObj.tenantEmail, leaseObj.tenantMobileNo, leaseObj.address, 'Phumlani', 'Tyali', leaseObj.leaseId)
+
+    const jsonBody = {
+        "leaseObj": leaseObj,
+    };
+
+    console.log('JSON body for manual inspection:', jsonBody);
+
+    const apiUrl = "https://maintenance-node.azurewebsites.net/api/insertInspection?code=QaW0HOzCXQEqVSh9MuemlJGWj4zebY678n6bSgLRNAhsAzFupWvNSQ==";
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonBody)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+        }
+        return response.json(); // Process the response if JSON
+    })
+    .then(data => {
+        console.log('Success:', data);  // Handle the success response
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error); // Handle errors
+    });
+}
 
 
 window.onload = populateLeasesData;

@@ -54,38 +54,61 @@ async function populateTable(tableBody, profiles) {
     const unoccupiedUnits = rentalUnitsData.filter(unit => unit.occupied);
     const allAssociations = await fetchAssociationsForProfile();
 
+    // Sort profiles by date from most recent to oldest
+    profiles.sort((a, b) => new Date(b.date) - new Date(a.date));
+
     profiles.forEach((profile) => {
         // Profile row
         const row = tableBody.insertRow();
-        row.innerHTML = `
-            <td>${profile.ID}</td>
-            <td>${profile.FullName}</td>
-            <td>${profile.IdNumber}</td>
-            <td>${profile.PrimaryContactNumber}</td>
-            <td>${profile.EmailAddress}</td>
-            <td>${profile.TenantAddress}</td>
-            <td>
+
+        // Find active associations for the current profile
+        const activeAssoc = allAssociations.find(assoc => assoc.ProfileID === profile.ID && assoc.Status === 'Active');
+
+        let unitCellContent;
+        let rentContent = '';
+        if (activeAssoc) {
+            // If there's an active association, find the associated unit and display its reference
+            const associatedUnit = rentalUnitsData.find(unit => unit.unit_id === activeAssoc.RentalUnitID);
+            unitCellContent = associatedUnit ? associatedUnit.unit_ref : 'Unknown Unit';
+            rentContent = associatedUnit ? associatedUnit.rent : '';
+        } else {
+            // If no active association, display the dropdown to select a unit
+            unitCellContent = `
                 <select id="unit-dropdown-${profile.ID}">
                     <option value="">Select a unit</option>
                     ${unoccupiedUnits.map(unit => `<option value="${unit.unit_id}">${unit.unit_ref}</option>`).join('')}
                 </select>
                 <button id="assign-btn-${profile.ID}" style="display: none;">Assign</button>
-            </td>
+            `;
+        }
+        row.innerHTML = `
+            <td>${profile.ID}</td>
+            <td>${profile.date}</td>
+            <td>${profile.FullName}</td>
+            <td>${profile.IdNumber}</td>
+            <td>${profile.PrimaryContactNumber}</td>
+            <td>${profile.EmailAddress}</td>
+            <td>${profile.TenantAddress}</td>
+            <td>${unitCellContent}</td>
+            <td>${rentContent}</td>
         `;
 
-        const dropdown = document.getElementById(`unit-dropdown-${profile.ID}`);
-        const assignButton = document.getElementById(`assign-btn-${profile.ID}`);
+        // Event handlers for dropdown and button, if they exist
+        if (!activeAssoc) {
+            const dropdown = document.getElementById(`unit-dropdown-${profile.ID}`);
+            const assignButton = document.getElementById(`assign-btn-${profile.ID}`);
 
-        dropdown.addEventListener('change', function() {
-            assignButton.style.display = this.value ? 'inline-block' : 'none';
-        });
+            dropdown.addEventListener('change', function() {
+                assignButton.style.display = this.value ? 'inline-block' : 'none';
+            });
 
-        assignButton.addEventListener('click', async () => {
-            const selectedUnitId = parseInt(dropdown.value, 10);
-            if (selectedUnitId) {
-                showLeaseStartDateModal(profile, selectedUnitId);
-            }
-        });
+            assignButton.addEventListener('click', async () => {
+                const selectedUnitId = parseInt(dropdown.value, 10);
+                if (selectedUnitId) {
+                    showLeaseStartDateModal(profile, selectedUnitId);
+                }
+            });
+        }
 
         // Association rows below the profile row
         const associations = allAssociations.filter(assoc => assoc.ProfileID === profile.ID);
@@ -103,8 +126,8 @@ async function populateTable(tableBody, profiles) {
                             <span><strong>Date Assigned:</strong> ${assoc.AssignedDate}</span>
                             <span><strong>Lease:</strong> <a href="${assoc.Lease || '#'}" target="_blank">Link</a></span>
                             <span><strong>Signed:</strong> ${assoc.Signed ? 'Yes' : 'No'}</span>
-                            ${assoc.Signed && assoc.LeaseSigned ? `<span><a href="${assoc.LeaseSigned}" target="_blank">View Signed Lease</a></span>` : ''}
-                        </div>
+                            ${assoc.Signed ? (assoc.LeaseSigned ? `<span><a href="${assoc.LeaseSigned}" target="_blank">View Signed Lease</a></span>` : '') : `<button onclick="sendLeaseForSigning('${profile.FullName}', '${profile.PrimaryContactNumber}', '${assoc.Lease}')">Send Lease for Signing</button>`}
+                            </div>
                         <div class="block block-middle">
                             ${assoc.Signed ? `
                             <div class="unique-ref-input">
@@ -134,6 +157,10 @@ async function populateTable(tableBody, profiles) {
 
 
 async function sendLeaseForSigning(FullName, PrimaryContactNumber, Lease) {
+    // Check if the phone number starts with '0' and is 10 digits long
+    if (PrimaryContactNumber.startsWith('0') && PrimaryContactNumber.length === 10) {
+        PrimaryContactNumber = '27' + PrimaryContactNumber.substring(1);
+    }
 
     // Construct the message data
     const messageData = {
