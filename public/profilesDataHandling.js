@@ -126,7 +126,7 @@ async function populateTable(tableBody, profiles) {
                             <span><strong>Date Assigned:</strong> ${assoc.AssignedDate}</span>
                             <span><strong>Lease:</strong> <a href="${assoc.Lease || '#'}" target="_blank">Link</a></span>
                             <span><strong>Signed:</strong> ${assoc.Signed ? 'Yes' : 'No'}</span>
-                            ${assoc.Signed ? (assoc.LeaseSigned ? `<span><a href="${assoc.LeaseSigned}" target="_blank">View Signed Lease</a></span>` : '') : `<button onclick="sendLeaseForSigning('${profile.FullName}', '${profile.PrimaryContactNumber}', '${assoc.Lease}')">Send Lease for Signing</button>`}
+                            ${assoc.Signed ? (assoc.LeaseSigned ? `<span><a href="${assoc.LeaseSigned}" target="_blank">View Signed Lease</a></span>` : '') : `<button onclick="sendLeaseForSigning('${profile.FullName}', '${profile.PrimaryContactNumber}', '${assoc.Lease}', '${assoc.AssociationID}')">Send Lease for Signing</button>`}
                             </div>
                         <div class="block block-middle">
                             ${assoc.Signed ? `
@@ -136,13 +136,14 @@ async function populateTable(tableBody, profiles) {
                             </div>
                             <span><strong>Unique Reference:</strong> ${assoc.UniqueRef}</span>
                             <div>
-                                <button onclick="sendPaymentDetails('${profile.FullName}', '${profile.PrimaryContactNumber.replace(/^0/, "27")}', '${unitRef}', '${assoc.LeaseSigned}', '${assoc.UniqueRef}')">Send Payment Details</button>
+                                <button onclick="sendPaymentDetails('${profile.FullName}', '${profile.PrimaryContactNumber.replace(/^0/, "27")}', '${unitRef}', '${assoc.LeaseSigned}', '${assoc.UniqueRef}', '${assoc.AssociationID}')">Send Payment Details</button>
                             </div>` : ''}
                         </div>
                         <div class="block block-right">
                             <!-- Reserved for future content -->
                         </div>
                     </div>
+                    <div class="message-field" id="message-${assoc.AssociationID}" style="padding: 10px;"></div>
                 </td>
             `;
             associationRow.innerHTML = assocRowInnerHTML;
@@ -156,7 +157,7 @@ async function populateTable(tableBody, profiles) {
 
 
 
-async function sendLeaseForSigning(FullName, PrimaryContactNumber, Lease) {
+async function sendLeaseForSigning(FullName, PrimaryContactNumber, Lease, AssociationID) {
     // Check if the phone number starts with '0' and is 10 digits long
     if (PrimaryContactNumber.startsWith('0') && PrimaryContactNumber.length === 10) {
         PrimaryContactNumber = '27' + PrimaryContactNumber.substring(1);
@@ -193,15 +194,15 @@ async function sendLeaseForSigning(FullName, PrimaryContactNumber, Lease) {
     })
     .then(data => {
         console.log('Message sent successfully:', data);
-        // document.getElementById(`responseMessage-${assoc.AssociationID}`).innerText = 'Message sent successfully';
+        document.getElementById(`message-${AssociationID}`).innerText = 'Message sent successfully';
     })
     .catch(error => {
         console.error('Error:', error);
-        // document.getElementById(`responseMessage-${assoc.AssociationID}`).innerText = 'Error sending message: ' + error.message;
+        document.getElementById(`message-${AssociationID}`).innerText = 'Error sending message: ' + error.message;
     });
 }
 
-async function sendPaymentDetails(FullName, PrimaryContactNumber, address, LeaseSigned, uniqueRef) {
+async function sendPaymentDetails(FullName, PrimaryContactNumber, address, LeaseSigned, uniqueRef, AssociationID) {
 
     // Construct the message data
     const messageData = {
@@ -236,12 +237,12 @@ async function sendPaymentDetails(FullName, PrimaryContactNumber, address, Lease
         return response.json();
     })
     .then(data => {
-        console.log('Message sent successfully:', data);
-        // document.getElementById(`responseMessage-${assoc.AssociationID}`).innerText = 'Message sent successfully';
+        console.log('Payment details sent successfully:', data);
+        document.getElementById(`message-${AssociationID}`).innerText = 'Payment details sent successfully';
     })
     .catch(error => {
         console.error('Error:', error);
-        // document.getElementById(`responseMessage-${assoc.AssociationID}`).innerText = 'Error sending message: ' + error.message;
+        document.getElementById(`responseMessage-${AssociationID}`).innerText = 'Error sending message: ' + error.message;
     });
 }
 
