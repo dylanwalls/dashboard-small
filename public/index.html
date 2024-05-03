@@ -56,6 +56,17 @@
                 </select>
             </div>
             <div class="col-md-4">
+                <label for="filterYear">Filter by Year:</label>
+                <select id="filterYear" class="form-control">
+                    <option value="">All</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <!-- Add more years as needed -->
+                </select>
+            </div>
+            
+            <div class="col-md-4">
 
                 <label for="filterHomeowner">Filter by Homeowner:</label>
                 <input type="text" id="filterHomeowner" class="form-control" placeholder="Enter Homeowner">
@@ -117,19 +128,23 @@
         window.onload = async () => {
             window.currentTable = 'rentRoll'; // default value
             try {
-                // Find the select element for filtering by month
+                // Find the select element for filtering by month and set the default month
                 const filterMonthSelect = document.getElementById('filterMonth');
-
-                // Get the current month (1-12)
-                const currentMonth = new Date().getMonth() + 1;
-
-                // Find the option element with the corresponding value
-                const optionToSelect = filterMonthSelect.querySelector(`option[value="${currentMonth}"]`);
-
-                // Set the selected attribute for the current month's option
-                if (optionToSelect) {
-                    optionToSelect.selected = true;
+                const currentMonth = new Date().getMonth() + 1; // get current month
+                const monthOptionToSelect = filterMonthSelect.querySelector(`option[value="${currentMonth}"]`);
+                if (monthOptionToSelect) {
+                    monthOptionToSelect.selected = true;
                 }
+
+                // Find the select element for filtering by year and set the default year
+                const filterYearSelect = document.getElementById('filterYear');
+                const currentYear = new Date().getFullYear(); // get current year
+                console.log('Current year:', currentYear);
+                const yearOptionToSelect = filterYearSelect.querySelector(`option[value="${currentYear}"]`);
+                if (yearOptionToSelect) {
+                    yearOptionToSelect.selected = true;
+                }
+
 
                 console.log('fetching data on load');
                 // Fetch and render data when page loads without applying any filters
@@ -139,6 +154,7 @@
                 const filterCriteria = {
                     itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
                     month: new Date().getMonth() + 1,
+                    year: currentYear,
                     homeowner: document.getElementById('filterHomeowner').value,
                     unitRef: document.getElementById('filterUnit').value
                 };

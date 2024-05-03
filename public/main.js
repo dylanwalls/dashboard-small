@@ -15,6 +15,7 @@ function applyFiltersAndSort() {
       const filterCriteria = {
       itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
       month: parseInt(document.getElementById('filterMonth').value, 10),
+      year: parseInt(document.getElementById('filterYear').value, 10),
       homeowner: document.getElementById('filterHomeowner').value,
       unitRef: document.getElementById('filterUnit').value
       };
@@ -29,6 +30,7 @@ function applyFiltersAndSort() {
       const filterCriteria = {
       itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
       month: parseInt(document.getElementById('filterMonth').value, 10),
+      year: parseInt(document.getElementById('filterYear').value, 10),
       homeowner: document.getElementById('filterHomeowner').value,
       unitRef: document.getElementById('filterUnit').value
       };
@@ -42,6 +44,10 @@ function applyFiltersAndSort() {
 // Check if the element exists before adding an event listener
 if (document.getElementById('itemsPerPage')) {
   document.getElementById('itemsPerPage').addEventListener('change', applyFiltersAndSort);
+}
+
+if (document.getElementById('filterYear')) {
+  document.getElementById('filterYear').addEventListener('change', applyFiltersAndSort);
 }
 
 if (document.getElementById('filterMonth')) {

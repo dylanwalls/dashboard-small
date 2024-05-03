@@ -6,6 +6,9 @@ function filterData(data, criteria, currentTable) {
     if (criteria.itemsPerPage) {
         filteredData = filterByItemsPerPage(filteredData, criteria.itemsPerPage);
     }
+    if (criteria.year && currentTable === 'rentRoll') { // Check if year filter is applied
+        filteredData = filterByYear(filteredData, criteria.year);
+    }
     if (criteria.month && currentTable === 'rentRoll') {
         filteredData = filterByMonth(filteredData, criteria.month);
     }
@@ -18,7 +21,7 @@ function filterData(data, criteria, currentTable) {
 
     // Sort the filtered data by month and unit_ref
     filteredData = sortData(filteredData);
-    // console.log('Data filtered');
+    console.log('Data filtered');
     return filteredData;
 }
 
@@ -45,6 +48,12 @@ function sortData(data) {
         // If homeowners are the same, sort by unit_ref
         return a.unit_ref.localeCompare(b.unit_ref);
     });
+}
+
+function filterByYear(data, year) {
+    // Logic to filter data by year
+    // Example: Return items where the 'year' property matches the specified year
+    return data.filter(item => item.year === year);
 }
 
 function filterByMonth(data, month) {

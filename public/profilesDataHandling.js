@@ -178,7 +178,7 @@ async function sendLeaseForSigning(FullName, PrimaryContactNumber, Lease, Associ
     };
 
     console.log('statement message body:', messageData);
-
+    document.getElementById(`message-${AssociationID}`).innerText = 'Sending message...';
 
     // Send the message data to the Azure HTTP function
     fetch('https://dashboard-function-app-1.azurewebsites.net/api/sendWhatsappTemplate?code=HMT7Whg8vQmL9C_lOTjFZ0ILLhoLZORZXAd_myIXRdv1AzFuq4O4FQ==', {
@@ -222,6 +222,7 @@ async function sendPaymentDetails(FullName, PrimaryContactNumber, address, Lease
     };
 
     console.log('statement message body:', messageData);
+    document.getElementById(`message-${AssociationID}`).innerText = 'Sending payment details...';
 
 
     // Send the message data to the Azure HTTP function
@@ -340,8 +341,9 @@ async function assignProfileToUnit(profile, unitId, leaseStartDate) {
     const address = thisUnitData.street + ', ' + thisUnitData.suburb;
     const rentAmount = thisUnitData.rent;
     const depositAmount = thisUnitData.deposit_due;
+    const dateAuthorised = new Date ();
     const apiUrl = 'https://maintenance-node.azurewebsites.net/api/insertProfileRUAssociation?code=SDnQBtfJO4sMEDFlKmXnBTHNBSSRuQlIUKxCLlIdsLNgAzFunr3Alw==';
-    const leaseUrl = createLeaseUrl(profile.FullName, profile.IdNumber, profile.PrimaryContactNumber, profile.EmailAddress, flat, address, leaseStartDate, rentAmount, depositAmount)
+    const leaseUrl = createLeaseUrl(profile.FullName, profile.IdNumber, profile.PrimaryContactNumber, profile.EmailAddress, flat, address, leaseStartDate, rentAmount, depositAmount, dateAuthorised)
     console.log('leaseurl', leaseUrl);
     const data = {
         profileId: profile.ID,
@@ -404,8 +406,8 @@ function addUniqueRef(associationId) {
 }
 
 
-function createLeaseUrl(tenantFullName, tenantIdNumber, tenantContactNumber, tenantEmailAddress, flat, address, startDate, rentAmount, depositAmount) {
-    return `https://jotform.com/240872093399568?&tenantFullName=${encodeURIComponent(tenantFullName)}&tenantIdNumber=${encodeURIComponent(tenantIdNumber)}&tenantContactNumber=${encodeURIComponent(tenantContactNumber)}&tenantEmailAddress=${encodeURIComponent(tenantEmailAddress)}&Flat=${encodeURIComponent(flat)}&address=${encodeURIComponent(address)}&startDate=${encodeURIComponent(startDate)}&rentAmount=${encodeURIComponent(rentAmount)}&depositAmount=${encodeURIComponent(depositAmount)}`;
+function createLeaseUrl(tenantFullName, tenantIdNumber, tenantContactNumber, tenantEmailAddress, flat, address, startDate, rentAmount, depositAmount, dateAuthorised) {
+    return `https://jotform.com/240872093399568?&tenantFullName=${encodeURIComponent(tenantFullName)}&tenantIdNumber=${encodeURIComponent(tenantIdNumber)}&tenantContactNumber=${encodeURIComponent(tenantContactNumber)}&tenantEmailAddress=${encodeURIComponent(tenantEmailAddress)}&Flat=${encodeURIComponent(flat)}&address=${encodeURIComponent(address)}&startDate=${encodeURIComponent(startDate)}&rentAmount=${encodeURIComponent(rentAmount)}&depositAmount=${encodeURIComponent(depositAmount)}&dateAuthorised=${encodeURIComponent(dateAuthorised)}`;
 }
 
 
