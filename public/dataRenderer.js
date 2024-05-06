@@ -179,9 +179,10 @@ function renderTable(data, commentModal, dataType) {
     if (dataType === 'rentRoll') {
         // Counting rows where amount_paid is equal to amount_due
         const paidCount = data.filter(row => parseFloat(row.amount_paid) === parseFloat(row.amount_due)).length;
+        const atLeastPaidCount = data.filter(row => parseFloat(row.amount_paid) >= parseFloat(row.amount_due)).length;
         const notPaidCount = data.filter(row => parseFloat(row.amount_paid) !== parseFloat(row.amount_due)).length;
         const total = paidCount + notPaidCount;
-        const ratio = `${paidCount}/${total}`;
+        const ratio = `${atLeastPaidCount}/${total}`;
         // const paidCount = 3;
         const countDiv = document.createElement('div');
         countDiv.id = 'paidCount';
