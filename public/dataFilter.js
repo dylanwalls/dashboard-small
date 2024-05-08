@@ -18,6 +18,9 @@ function filterData(data, criteria, currentTable) {
     if (criteria.unitRef) {
         filteredData = filterByUnitRef(filteredData, criteria.unitRef);
     }
+    if (criteria.vacantOrArrears) {
+        filteredData = filterByVacantOrArrears(filteredData, criteria.vacantOrArrears);
+    }
 
     // Sort the filtered data by month and unit_ref
     filteredData = sortData(filteredData);
@@ -74,6 +77,16 @@ function filterByUnitRef(data, unit_ref) {
     // Example: Return items where the 'unitRef' property contains the specified unitRef string
     const lowercaseUnitRef = unit_ref.toLowerCase();
     return data.filter(item => item.unit_ref.toLowerCase().includes(lowercaseUnitRef));
+}
+
+function filterByVacantOrArrears(data, status) {
+    // Logic to filter data based on the vacant or arrears status
+    if (status === 'vacant') {
+        return data.filter(item => item.vacant === true);
+    } else if (status === 'arrears') {
+        return data.filter(item => item.arrears === true);
+    }
+    return data; // Return unfiltered data if no status matches
 }
 
 export { filterData };

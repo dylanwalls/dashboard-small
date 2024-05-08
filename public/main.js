@@ -12,12 +12,14 @@ function applyFiltersAndSort() {
     fetchData().then(originalData => {
       console.log('Month value', document.getElementById('filterMonth').value);
       console.log('Homeowner filter value', document.getElementById('filterHomeowner').value);
+      console.log('Vacant/arrears filter value', document.getElementById('filterVacantArrears').value);
       const filterCriteria = {
       itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
       month: parseInt(document.getElementById('filterMonth').value, 10),
       year: parseInt(document.getElementById('filterYear').value, 10),
       homeowner: document.getElementById('filterHomeowner').value,
-      unitRef: document.getElementById('filterUnit').value
+      unitRef: document.getElementById('filterUnit').value,
+      vacantOrArrears: document.getElementById('filterVacantArrears').value
       };
       const filteredData = filterData(originalData, filterCriteria, 'rentRoll');
       renderTable(filteredData, commentModal, 'rentRoll');
@@ -32,7 +34,8 @@ function applyFiltersAndSort() {
       month: parseInt(document.getElementById('filterMonth').value, 10),
       year: parseInt(document.getElementById('filterYear').value, 10),
       homeowner: document.getElementById('filterHomeowner').value,
-      unitRef: document.getElementById('filterUnit').value
+      unitRef: document.getElementById('filterUnit').value,
+      vacantOrArrears: document.getElementById('filterVacantArrears').value
       };
       const filteredData = filterData(originalData, filterCriteria, 'deposits');
       renderTable(filteredData, commentModal, 'deposits');
@@ -60,5 +63,9 @@ if (document.getElementById('filterHomeowner')) {
 
 if (document.getElementById('filterUnit')) {
   document.getElementById('filterUnit').addEventListener('input', applyFiltersAndSort);
+}
+
+if (document.getElementById('filterVacantArrears')) {
+  document.getElementById('filterVacantArrears').addEventListener('input', applyFiltersAndSort);
 }
 

@@ -278,37 +278,36 @@ body {
   min-height: 40px; /* Ensure a consistent height for all elements */
 }
 
-/* styles.css or your existing stylesheet file */
+/* styles.css */
 .arrears-highlight {
-  background-color: lightcoral;
+  background-color: lightcoral; /* Light coral background for highlighted cells */
+  color: white; /* Ensure text color is white for better visibility */
+  transition: background-color 0.3s; /* Smooth transition for background color change */
 }
 
-.arrears-cell, .vacant-cell {
+.status-cell {
     display: flex;
-    align-items: center; /* Center items vertically */
-    justify-content: space-between; /* Space between label and toggle */
+    align-items: center;
+    justify-content: space-between;
     padding: 8px;
 }
 
-.arrears-label, .vacant-label {
-    flex: 1; /* Takes up half the cell */
-    text-align: center; /* Center text horizontally */
-    padding: 4px; /* Padding inside the label for spacing */
-    border-radius: 4px 0 0 4px; /* Rounded corners on the left side */
-    transition: background-color 0.3s; /* Smooth transition for background color */
+.status-label {
+    flex-grow: 1;
+    text-align: center;
+    padding: 4px;
 }
 
-.arrears-highlight, .vacant-highlight {
-    background-color: red; /* Only apply red background when arrears */
-    color: white; /* White text on red background */
-}
-
-.arrears-toggle, .vacant-toggle {
-    flex: 1; /* Takes up the other half of the cell */
+.status-toggle {
+    flex-grow: 1;
     display: flex;
     align-items: center;
-    justify-content: center; /* Center the checkbox horizontally */
-    padding: 4px; /* Padding for spacing */
-    border-radius: 0 4px 4px 0; /* Rounded corners on the right side */
+    justify-content: center;
 }
 
+.status-cell {
+  display: flex;
+  flex-direction: column;  /* Stacks children vertically */
+  align-items: stretch;    /* Aligns children to fill the cell width */
+  padding: 8px;
+}

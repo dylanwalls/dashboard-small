@@ -77,7 +77,16 @@
                 <input type="text" id="filterUnit" class="form-control" placeholder="Enter unit or property reference">
             </div>
             <!-- <button id="applyFiltersButton">Apply Filters</button> -->
+            <div class="col-md-4">
+                <label for="filterVacantArrears">Filter by Vacant or Arrears:</label>
+                <select id="filterVacantArrears" class="form-control">
+                    <option value="">All</option>
+                    <option value="vacant">Vacant</option>
+                    <option value="arrears">Arrears</option>
+                </select>
+            </div>
         </div>
+        <!-- New dropdown filter -->
     </div>
 
     <!-- Container to display table data -->
@@ -156,7 +165,8 @@
                     month: new Date().getMonth() + 1,
                     year: currentYear,
                     homeowner: document.getElementById('filterHomeowner').value,
-                    unitRef: document.getElementById('filterUnit').value
+                    unitRef: document.getElementById('filterUnit').value,
+                    vacantOrArrears: document.getElementById('filterVacantArrears').value // New filter
                 };
                 console.log('month ', filterCriteria.month);
                 // Sort the initial data by month, homeowner, and unit_ref
@@ -173,7 +183,8 @@
                         itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
                         month: new Date().getMonth() + 1,
                         homeowner: document.getElementById('filterHomeowner').value,
-                        unitRef: document.getElementById('filterUnit').value
+                        unitRef: document.getElementById('filterUnit').value,
+                        vacantOrArrears: document.getElementById('filterVacantArrears').value // New filter
                     };
                     fetchData().then(originalData => {
                         const filteredData = filterData(originalData, filterCriteria, 'rentRoll');
@@ -340,7 +351,8 @@
                 itemsPerPage: parseInt(document.getElementById('itemsPerPage').value, 10),
                 month: document.getElementById('filterMonth').value,
                 homeowner: document.getElementById('filterHomeowner').value,
-                unitRef: document.getElementById('filterUnit').value
+                unitRef: document.getElementById('filterUnit').value,
+                vacantOrArrears: document.getElementById('filterVacantArrears').value // New filter
             };
             const filteredData = filterData(originalData, filterCriteria, window.currentTable);
             renderTable(filteredData, commentModal, 'rentRoll');
