@@ -8,6 +8,7 @@ window.currentDataType = null;
 function renderTable(data, commentModal, dataType) {
     // console.log('Rendering table for:');
 
+    // console.log('table data:', data);
     const currentMonth = new Date().getMonth() + 1; // Get the current month (1-12)
 
     // Get the container where the data will be displayed
@@ -46,14 +47,48 @@ function renderTable(data, commentModal, dataType) {
         }
     }
 
+    // Add an additional header cell for the toggle column
+    const toggleHeaderCell = headerRow.insertCell();
+    toggleHeaderCell.innerText = 'Toggle Arrears';
+
     data.forEach((rowData) => {
         const row = table.insertRow();
+        let arrearsCell;
         for (const key in rowData) {
             if (key !== 'invoice_id') {
                 const cell = row.insertCell();
+                
                 if (dataType === 'rentRoll') {
-
-                    if (key === 'unit_ref' && rowData[key]) {
+                    if (key === 'arrears' || key === 'vacant') {
+                        // Common setup for both 'Arrears' and 'Vacant'
+                        cell.classList.add('status-cell');  // A common class for styling both cells similarly
+        
+                        // Create the label and toggle container inside this cell
+                        const statusLabel = document.createElement('div');
+                        statusLabel.classList.add(key + '-label');  // 'arrears-label' or 'vacant-label'
+                        statusLabel.textContent = rowData[key] ? (key === 'arrears' ? 'In Arrears' : 'Vacant') : '';
+        
+                        const toggleContainer = document.createElement('div');
+                        toggleContainer.classList.add(key + '-toggle');
+        
+                        const toggleCheckbox = document.createElement('input');
+                        toggleCheckbox.type = 'checkbox';
+                        toggleCheckbox.checked = rowData[key];
+                        toggleCheckbox.addEventListener('change', () => {
+                            rowData[key] = toggleCheckbox.checked;
+                            statusLabel.textContent = toggleCheckbox.checked ? (key === 'arrears' ? 'In Arrears' : 'Vacant') : '';
+                            if (key === 'arrears') {
+                                updateArrearsValue(rowData['unit_id'], toggleCheckbox.checked ? 1 : 0);
+                            } else if (key === 'vacant') {
+                                updateVacantValue(rowData['unit_id'], toggleCheckbox.checked ? 1 : 0);
+                            }
+                        });
+        
+                        toggleContainer.appendChild(toggleCheckbox);
+                        cell.appendChild(statusLabel);
+                        cell.appendChild(toggleContainer);
+                        
+                    } else if (key === 'unit_ref' && rowData[key]) {
                         // Create a link for the unit_ref column
                         const link = document.createElement('a');
                         link.href = `unit_deposits.html?unit_ref=${rowData[key]}`; // Specify the link URL
@@ -102,21 +137,13 @@ function renderTable(data, commentModal, dataType) {
                         if (!isNaN(deposit_balance) && deposit_balance < 0) {
                             cell.classList.add('zero-amount'); // Assumes you have CSS styling for .negative-balance for highlighting
                         }
-                    } else if (key === 'occupied') {
-                        // Logic for 'occupied' key
+                    } else if (key === 'vacant') {
+                        // Logic for 'vacant' key
                         if (rowData[key] === true) {
                             cell.innerText = '';
                         } else if (rowData[key] === false) {
                             cell.classList.add('zero-amount');
-                            cell.innerText = 'Vacant'; // Optional: display 'false' as well
-                        }
-                    } else if (key === 'arrears') {
-                        // Logic for 'arrears' key
-                        if (rowData[key] === false) {
-                            cell.innerText = '';
-                        } else if (rowData[key] === true) {
-                            cell.classList.add('zero-amount');
-                            cell.innerText = 'In Arrears'; // Optional: display 'true' as well
+                            cell.innerText = ''; // Optional: display 'false' as well
                         }
                     } else {
                         cell.innerText = rowData[key];
@@ -195,12 +222,69 @@ function renderTable(data, commentModal, dataType) {
         headerDiv.insertAdjacentElement('afterend', countDiv); // This inserts countDiv right after headerDiv
     }
 
-
-    
-
-
 }
 
+async function updateArrearsValue(unit_id, arrearsValue) {
+    // Construct the payload to send to the server
+    const payload = {
+        unit_id: unit_id,
+        arrears: arrearsValue
+    };
+    console.log('updateArrearsValue payload:', payload);
+
+    try {
+        // Send an HTTP PUT request to update the arrears status on the server
+        const response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/updateArrearsStatus?code=8RjDU-gsn9SF6a5CRuiXunPedcLR9MYzJXmRK4x0VZfIAzFu76_zXw==', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        // Optionally, handle the response data if needed
+        const result = await response.json();
+        console.log('Arrears status updated successfully:', result);
+
+    } catch (error) {
+        console.error('Error updating arrears status:', error.message);
+    }
+}
+
+async function updateVacantValue(unit_id, vacantValue) {
+    // Construct the payload to send to the server
+    const payload = {
+        unit_id: unit_id,
+        vacant: vacantValue
+    };
+    console.log('updateVacantValue payload:', payload);
+
+    try {
+        // Send an HTTP PUT request to update the arrears status on the server
+        const response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/updateOccupiedStatus?code=tDL7qM_rYnW1beY_pfysXIQJlYqSYGNlyn0HrnUov5cVAzFu9cG32Q==', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        // Optionally, handle the response data if needed
+        const result = await response.json();
+        console.log('Arrears status updated successfully:', result);
+
+    } catch (error) {
+        console.error('Error updating arrears status:', error.message);
+    }
+}
 
 // console.log('Data rendered');
 export { renderTable };

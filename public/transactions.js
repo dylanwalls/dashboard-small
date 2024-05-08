@@ -253,7 +253,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error('Error updating invoices:', error);
         });
     }
-    
 
 
     // Parse the URL query parameters to get the propertyId

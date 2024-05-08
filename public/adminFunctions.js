@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Define functions for each operation
 function downloadRentRoll() {
     var month = document.getElementById('rentRollMonth').value;
+    var year = document.getElementById('rentRollYear').value;
     console.log('Downloading Rent Roll for the month', month);
     const azureFunctionURL = 'https://python38-functions.azurewebsites.net/api/downloadRentRoll?code=2ZRFLWuU_SoSAvlKNPN8_-ATQSQ55F6uJpqLTNXnElvSAzFu4C4JYg==';
             // const month = document.getElementById('filterMonth').value;
@@ -34,7 +35,7 @@ function downloadRentRoll() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({"month": month}),
+                body: JSON.stringify({"month": month, "year": year}),
             })
             .then(response => response.blob())
             .then(blob => {
@@ -496,7 +497,7 @@ async function updateMetadataLabels() {
         document.getElementById('lastUpdatedTransactions').textContent = metadata['last_updated_transactions'] || 'N/A';
         document.getElementById('lastUpdatedProperties').textContent = metadata['last_updated_properties'] || 'N/A';
         document.getElementById('lastUpdatedLeases').textContent = metadata['leases_last_updated'] || 'N/A';
-        document.getElementById('lastReconciledTransactions').textContent = metadata['last_reconciled_transactions'] || 'N/A';
+        document.getElementById('reconciliationStatusMessage').textContent = metadata['last_reconciled_transactions'] || 'N/A';
         document.getElementById('lastGeneratedInvoices').textContent = metadata['last_generated_invoices'] || 'N/A';
         //... Add other metadata updates here
     }
@@ -539,8 +540,8 @@ async function reconcileTransactions() {
         if (response.ok) {
             // Display a success message
             reconciliationStatusMessage.textContent = 'Reconciliation successful.';
-            // updateLastUpdatedLabel('lastReconciledTransactions', 'last_reconciled_transactions');
-            // updateMetadataLabels();
+            updateLastUpdatedLabel('reconciliationStatusMessage', 'last_reconciled_transactions');
+            updateMetadataLabels();
         } else {
             // Display an error message
             reconciliationStatusMessage.textContent = 'Reconciliation failed. Please try again.';
@@ -576,4 +577,68 @@ async function generateInvoices() {
         // Display an error message
         generateInvoicesStatusMessage.textContent = 'An error occurred. Please try again later.';
     }
+}
+
+async function fetchMetadata() {
+    try {
+        let response = await fetch('https://dashboard-function-app-1.azurewebsites.net/api/fetchMetadata?code=xjpjkjqlvPUq9zFlqqZumqeHdnL0fLg7P01YjDZ2Kl2AAzFuBbFEVQ==');
+        let data = await response.json();
+        console.log('Raw data: ', data);
+        let metadata = {};
+        if (Array.isArray(data)) {
+            data
+                data.forEach(item => {
+                    if (item.meta_key && item.meta_value) {
+                        metadata[item.meta_key] = item.meta_value;
+                    } else {
+                        console.warn('Skipped item due to missing meta_key or meta_value:', item);
+                    }
+                   
+                });
+        } else {
+            console.error('Unexpected data format:', data); // Log an error if data is not an array
+        }
+        return metadata;
+    } catch (error) {
+        console.error("Error fetching metadata:", error);
+    }
+}
+
+async function updateMetadataLabels() {
+    let metadata = await fetchMetadata();
+    if (metadata) {
+        // Assuming your metadata returns an array or an object.
+        // Adjust according to your actual response structure.
+        document.getElementById('lastUpdatedTransactions').textContent = metadata['last_updated_transactions'] || 'N/A';
+        document.getElementById('lastUpdatedProperties').textContent = metadata['last_updated_properties'] || 'N/A';
+        document.getElementById('lastUpdatedLeases').textContent = metadata['leases_last_updated'] || 'N/A';
+        document.getElementById('reconciliationStatusMessage').textContent = metadata['last_reconciled_transactions'] || 'N/A';
+        document.getElementById('lastGeneratedInvoices').textContent = metadata['last_generated_invoices'] || 'N/A';
+        //... Add other metadata updates here
+    }
+}
+
+// Add this function to update Last Updated labels
+function updateLastUpdatedLabel(labelId, metaKey) {
+    const timestamp = new Date().toLocaleString();
+
+    document.getElementById(labelId).textContent = timestamp;
+
+    // Prepare data to send to the server
+    const data = {
+        meta_key: metaKey,
+        meta_value: timestamp
+    };
+
+    // Send data to server
+    fetch('https://dashboard-function-app-1.azurewebsites.net/api/updateMetaData?code=nIb1Jt8EvziIXHh4d6dkl8wFqV6VheAed_OTu-xFK_-AAzFuWf2-Yg==', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch((error) => console.error('Error:', error));
 }
