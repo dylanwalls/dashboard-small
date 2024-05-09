@@ -51,8 +51,18 @@ async function populateTable(tableBody, profiles) {
     tableBody.innerHTML = ''; // Clear existing rows
 
     const rentalUnitsData = await fetchRentalUnitsData();
-    const unoccupiedUnits = rentalUnitsData.filter(unit => unit.occupied);
+    // const unoccupiedUnits = rentalUnitsData.filter(unit => unit.vacant);
     const allAssociations = await fetchAssociationsForProfile();
+
+    // Identify units with active associations
+    const unitsWithActiveAssoc = new Set(
+        allAssociations
+            .filter(assoc => assoc.Status === 'Active')
+            .map(assoc => assoc.RentalUnitID)
+    );
+
+    // Get the list of unoccupied units (units without an active association)
+    const unoccupiedUnits = rentalUnitsData.filter(unit => !unitsWithActiveAssoc.has(unit.unit_id));
 
     // Sort profiles by date from most recent to oldest
     profiles.sort((a, b) => new Date(b.date) - new Date(a.date));

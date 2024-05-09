@@ -1,3 +1,19 @@
+async function fetchAssociationsData() {
+    const apiUrl = `https://maintenance-node.azurewebsites.net/api/fetchProfileRentalUnitAssociations?code=EXExmpAZZcjExM9RKcw4SWXhk6gXSM8Te2QOURIuuYYAAzFuIfsN-g==`;
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+        console.error('There was a problem fetching the associations data.', e);
+        return []; // Return an empty array in case of error
+    }
+}
+
 async function fetchRentalUnitsData() {
     const apiUrl = 'https://maintenance-node.azurewebsites.net/api/fetchRentalUnits?code=gB2oE5zLkc7dGeHrKyC_oNN-EUT46W6l3rW_f6DpBeyBAzFu1qkvsQ==';
     try {
@@ -13,16 +29,113 @@ async function fetchRentalUnitsData() {
     }
 }
 
+async function fetchTenantInformation() {
+    const apiUrl = 'https://maintenance-node.azurewebsites.net/api/fetchProfiles?code=kbfLHPwjqdbl95ltdDFnTSvADh40CqE6LkCyTK10TbvKAzFutbyDyQ==';
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (e) {
+        console.error('There was a problem fetching the tenant information data.', e);
+        return [];
+    }
+}
+
+async function confirmTerminateLease(associationID) {
+    // Prompt for confirmation
+    const confirmTerminate = confirm('Are you sure you want to terminate this lease?');
+    if (!confirmTerminate) {
+        return; // User canceled
+    }
+
+    // Prompt for a reason
+    const reason = prompt('Please provide a reason for terminating the lease:');
+    if (!reason || reason.trim() === '') {
+        alert('Termination reason cannot be empty!');
+        return; // User didn't provide a reason
+    }
+
+    // Prepare the data to update the association
+    const updateData = {
+        AssociationID: parseInt(associationID, 10),
+        Status: 'Inactive',
+        TerminationReason: reason
+    };
+
+    console.log('updateData:', updateData);
+
+    // Send API request to update the association status
+    try {
+        const response = await fetch('https://maintenance-node.azurewebsites.net/api/terminateLeaseAssociation?code=Ni3AhUMnMxGaYNnzceFQRumq27KxajGNs5xetUJoBUDBAzFulzA3Cw%3D%3D', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            alert('Lease terminated successfully.');
+            // Optionally, reload or update the page to reflect changes
+            location.reload();
+        } else {
+            alert(`Failed to terminate lease: ${result.message}`);
+        }
+    } catch (e) {
+        console.error('Error terminating lease:', e);
+        alert('There was an error terminating the lease. Please try again later.');
+    }
+}
+
+
 async function populateRentalUnitsData() {
     const rentalUnitsData = await fetchRentalUnitsData();
+    const associationsData = await fetchAssociationsData();
+    const tenantInformation = await fetchTenantInformation();
     console.log('Fetched rental units data:', rentalUnitsData);
 
+    const tenantMap = tenantInformation.reduce((acc, tenant) => {
+        acc[tenant.ID] = tenant;
+        return acc;
+    }, {});    
+
     if (rentalUnitsData && rentalUnitsData.length > 0) {
+
+        // Link each unit with its active association
+        const rentalUnitsWithAssoc = rentalUnitsData.map(unit => {
+            const activeAssoc = associationsData.find(
+                assoc => assoc.RentalUnitID === unit.unit_id && assoc.Status === 'Active'
+            );
+
+            // Retrieve tenant details from tenantMap if association exists
+            const tenantDetails = activeAssoc ? tenantMap[activeAssoc.ProfileID] : null;
+            console.log
+
+            return {
+                ...unit,
+                activeAssoc: activeAssoc ? {
+                    ...activeAssoc,
+                    TenantFullName: tenantDetails ? tenantDetails.FullName : '',
+                    TenantContact: tenantDetails ? tenantDetails.PrimaryContactNumber : '',
+                    TenantIdNumber: tenantDetails ? tenantDetails.IdNumber : '',
+                    TenantEmail: tenantDetails ? tenantDetails.EmailAddress : ''
+                } : null
+            };
+        });
 
         // Now, filteredProfiles contains only the most recent profiles without duplicates based on IdNumber.
         // Populate the full list of recent profiles
         const allRentalUnitsTableBody = document.getElementById('rentalunits-table-body');
-        populateTable(allRentalUnitsTableBody, rentalUnitsData);
+        populateTable(allRentalUnitsTableBody, rentalUnitsWithAssoc);
 
     } else {
         console.error('No profiles data was returned from the API or the data is empty.');
@@ -39,9 +152,22 @@ function populateTable(tableBody, rentalunits) {
     rentalunits.forEach((rentalunit, index) => {
         // Main row
         const row = tableBody.insertRow();
-        // Construct the address string
-       
 
+        const assocDetails = rentalunit.activeAssoc
+            ? `
+            <div>
+                <strong>Tenant:</strong> ${rentalunit.activeAssoc.TenantFullName || 'Unknown'}<br>
+                <strong>Contact:</strong> ${rentalunit.activeAssoc.TenantContact || 'N/A'}<br>
+                <strong>ID Number:</strong> ${rentalunit.activeAssoc.TenantIdNumber || 'N/A'}<br>
+                <strong>Email Address:</strong> ${rentalunit.activeAssoc.TenantEmail || 'N/A'}<br>
+                <strong>Lease Start Date:</strong> ${rentalunit.activeAssoc.StartDate}<br>
+                <strong>Status:</strong> ${rentalunit.activeAssoc.Status}<br>
+                <button onclick="confirmTerminateLease('${rentalunit.activeAssoc.AssociationID}')">Terminate Lease</button>
+            </div>
+            `
+            : '<em>No active association</em>';
+
+        const unitStatus = rentalunit.vacant ? 'Vacant' : 'Occupied';
         
         row.innerHTML = `
             <td>${rentalunit.unit_ref}</td>
@@ -49,7 +175,7 @@ function populateTable(tableBody, rentalunits) {
             <td>${rentalunit.deposit_due}</td>
             <td>${rentalunit.deposit_paid}</td>
             <td>${rentalunit.agent}</td>
-            <td>${rentalunit.occupied}</td>
+            <td>${unitStatus}</td>
             <td>${rentalunit.arrears}</td>
         `;
 
@@ -67,6 +193,10 @@ function populateTable(tableBody, rentalunits) {
                         <strong>Deposit Paid:</strong> ${rentalunit.deposit_paid}<br>
                         <strong>Deposit Status:</strong> ${rentalunit.status}<br>
                         <strong>Comments:</strong> ${rentalunit.comments}<br>
+                    </div>
+                    <div style="flex: 1;">
+                        <h6>Active Lease</h6>
+                        <div>${assocDetails}</div>
                     </div>
                 </div>
             </td>
