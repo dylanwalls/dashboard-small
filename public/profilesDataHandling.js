@@ -121,7 +121,7 @@ async function populateTable(tableBody, profiles) {
         }
 
         // Association rows below the profile row
-        const associations = allAssociations.filter(assoc => assoc.ProfileID === profile.ID);
+        const associations = allAssociations.filter(assoc => assoc.ProfileID === profile.ID && assoc.Status === 'Active');
         associations.forEach(assoc => {
             const associationRow = tableBody.insertRow();
             associationRow.style.display = 'none'; // Initially hidden
@@ -134,6 +134,7 @@ async function populateTable(tableBody, profiles) {
                         <div class="block block-left">
                             <span><strong>Unit:</strong> ${unitRef}</span>
                             <span><strong>Date Assigned:</strong> ${assoc.AssignedDate}</span>
+                            <span><strong>Status:</strong> ${assoc.Status}</span>
                             <span><strong>Lease:</strong> <a href="${assoc.Lease || '#'}" target="_blank">Link</a></span>
                             <span><strong>Signed:</strong> ${assoc.Signed ? 'Yes' : 'No'}</span>
                             ${assoc.Signed ? (assoc.LeaseSigned ? `<span><a href="${assoc.LeaseSigned}" target="_blank">View Signed Lease</a></span>` : '') : `<button onclick="sendLeaseForSigning('${profile.FullName}', '${profile.PrimaryContactNumber}', '${assoc.Lease}', '${assoc.AssociationID}')">Send Lease for Signing</button>`}
