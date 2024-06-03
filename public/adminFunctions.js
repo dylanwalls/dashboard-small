@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('reconcileIndluPayoutButton').addEventListener('click', reconcileIndluPayoutList);
     document.getElementById('uploadCitiqMeters').addEventListener('click', uploadCitiqMeters);
     document.getElementById('uploadCitiqRemit').addEventListener('click', uploadCitiqRemit);
+    document.getElementById('updateCitiqColumnsProperties').addEventListener('click', updateCitiqColumnsProperties);
     document.getElementById('sendCitiqValuesButton').addEventListener('click', sendCitiqValuesToAllHomeowners);
     
     // Attach event listeners for function buttons
@@ -454,6 +455,48 @@ async function uploadCitiqRemit() {
     } else {
         // Display a message if no files are selected
         uploadMultipleStatusMessage.textContent = 'Please select files and fill in all fields.';
+    }
+}
+
+async function updateCitiqColumnsProperties() {
+    // Display a loading message
+    uploadMultipleStatusMessage.textContent = 'Updating Citiq Values';
+    const month = document.getElementById('monthDropdown').value;
+    const year = document.getElementById('yearInput').value;
+
+    // Check if month or year is empty and alert the user
+    if (!month || !year) {
+        alert("Please ensure both month and year are selected.");
+        throw new Error("Month and/or year values are missing.");
+    }
+    
+    const monthYear = month + year;
+
+    try {
+        const requestBody = {
+            monthYear: monthYear
+        };
+        const response = await fetch('https://python38-functions.azurewebsites.net/api/updateCitiqColumnsProperties?code=CATc79ffPtmvjSyUz4SjuXZu-FnafoIY5vYnvwDu8URiAzFuv0qJGw%3D%3D', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (response.ok) {
+            // Display a success message for each file
+            uploadMultipleStatusMessage.textContent = `Citiq values updated successfully.\n`;
+            // updateLastUpdatedLabel('lastUpdatedMultiple', 'last_updated_multiple');
+            // updateMetadataLabels();
+        } else {
+            // Display an error message for each file
+            uploadMultipleStatusMessage.textContent = `Citiq values update failed. Please try again.\n`;
+        }
+    } catch (error) {
+        console.error(`Error (line 390)`, error);
+        uploadMultipleStatusMessage.textContent = `An error occurred (line 390). Please try again later.\n`;
     }
 }
 

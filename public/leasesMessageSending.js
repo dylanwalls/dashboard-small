@@ -87,7 +87,7 @@ async function sendMessage(index, leaseStr, messageTypeId, additionalParams = []
 
 function getHsmId(messageTypeId) {
     switch (messageTypeId) {
-        case '3MonthNotice': return "158515";
+        case '3MonthNotice': return "158515"; // 167284 - new template
         case '1MonthExtended': return "161125";
         case '1MonthNoticeGiven': return "161126";
         case 'Notice': return "161297";

@@ -37,6 +37,7 @@
                         <th>Month</th>
                         <th>Electricity</th>
                         <th>Water</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody id="data-table-body">
@@ -131,12 +132,16 @@
         function populateTable(tableBody, data) {
             tableBody.innerHTML = ''; // Clear existing rows
             data.forEach(item => {
+                const electricity = parseFloat(item.Electricity);
+                const water = parseFloat(item.Water);
+                const total = (electricity + water).toFixed(2);
                 const row = tableBody.insertRow();
                 row.innerHTML = `
                     <td>${item.Property}</td>
                     <td>${item.Month}</td>
-                    <td>${parseFloat(item.Electricity).toFixed(2)}</td>
-                    <td>${parseFloat(item.Water).toFixed(2)}</td>
+                    <td>${electricity.toFixed(2)}</td>
+                    <td>${water.toFixed(2)}</td>
+                    <td>${total}</td>
                 `;
             });
         }
